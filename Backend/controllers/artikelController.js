@@ -56,4 +56,16 @@ exports.hapusArtikel = async (req, res) =>{
     }
 }
 
+exports.lihatsatuArtikel = async (req, res) =>{
+    try{
+        const artikel = await Artikel.findById(req.params.id);
+        if(!artikel){
+            return res.status(404).json({message:'Gaada njirr'});
+        }
+        res.json(artikel);
+    }catch (error){
+        res.status(500).json({message:error.message});
+    }
+}
+
 ///Batas Controller Artikel

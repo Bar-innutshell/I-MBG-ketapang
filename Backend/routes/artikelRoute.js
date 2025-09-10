@@ -9,7 +9,7 @@ router.route('/')
     .post(upload.single('gambar'), artikelController.buatArtikel);
 
 router.route('/:id')
-    .get(artikelController.lihatsemuaArtikel)
+    .get(artikelController.lihatsatuArtikel)
     .patch(artikelController.updateArtikel)
     .delete(artikelController.hapusArtikel);
 
