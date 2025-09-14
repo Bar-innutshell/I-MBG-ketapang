@@ -42,12 +42,12 @@ Ambil satu artikel berdasarkan `id`.
 - Error: 404 jika tidak ditemukan.
 
 ### PATCH /artikel/{id}
-Update sebagian field artikel (tanpa dukungan ganti gambar untuk saat ini).
-- Content-Type: application/json
-- Body (opsional, salah satu atau kombinasi):
-  - judul: string
-  - isi: string
-  - gambar: string (tidak dianjurkan — upload belum didukung di PATCH)
+Update sebagian / seluruh field artikel. Sekarang MENDUKUNG ganti gambar.
+- Content-Type:
+  - application/json (jika tidak ganti gambar)
+  - multipart/form-data (jika ganti gambar)
+- Body (opsional): judul, isi, (gambar file opsional)
+- Jika ada file baru: backend akan menghapus file gambar lama (jika ada) sebelum menyimpan yang baru.
 - Response 200: objek Artikel hasil update.
 - Error: 404 jika `id` tidak ditemukan, 400 jika payload tidak valid.
 
@@ -88,10 +88,10 @@ Catatan: sebagian pesan error masih menggunakan bahasa informal; gunakan kode st
 - Upload: Multer menyimpan file ke folder `Backend/uploads/` dengan nama `Date.now() + '-' + originalname`.
 - Static: Folder `uploads/` disajikan di `/uploads` (public).
 
-## Batasan/Known Issues (per 2025-09-10)
-- PATCH belum mendukung update file gambar (tidak ada middleware upload pada route ini).
+## Batasan/Known Issues (per 2025-09-14)
 - Tidak ada pagination/sorting/filter di listing artikel.
 - Tidak ada autentikasi/otorisasi.
+- Pesan error belum konsisten format (perlu standarisasi).
 
 ## Rekomendasi Integrasi Frontend
 - Untuk daftar: konsumsi `GET /artikel` lalu bangun URL gambar per item jika `gambar` ada.
@@ -170,9 +170,12 @@ Ambil satu resep berdasarkan id.
 - Error 404 jika tidak ditemukan.
 
 ### PATCH /resep/{id}
-Update sebagian field resep (SAAT INI belum mendukung ganti gambar karena tidak ada multer di route PATCH).
-- Content-Type: application/json
-- Body: subset field di atas.
+Update sebagian / seluruh field resep. MENDUKUNG ganti gambar (route sudah memakai `upload.single('gambar')`).
+- Content-Type:
+  - multipart/form-data (jika ganti gambar atau kirim struktur kompleks sekaligus)
+  - application/json (jika tanpa gambar)
+- Field yang didukung: judul, deskripsi, porsi, durasiMenit, tingkatKesulitan, perkiraanBiaya, ingredients, langkahMasak, nutrisi, tags, gambar(file)
+- Jika ada file baru: file lama akan dihapus otomatis.
 - Response 200: objek Resep terupdate.
 - Error: 404 jika tidak ada, 400 jika invalid.
 
@@ -213,8 +216,8 @@ const resepImgUrl = `${BASE_URL}/uploads/${resep.gambar}`;
 ## Batasan/Known Issues Tambahan (Resep)
 - Tidak ada pagination & filter (rencana: ?bahan=telur,tempe & ?tag=protein & ?page=1&limit=10).
 - Tidak ada endpoint kombinasi resep atau daftar belanja agregat (future feature).
-- PATCH belum dukung ganti gambar.
-- Validasi struktur `ingredients` tidak mendalam (misal unit konsisten) – tambahkan jika diperlukan.
+- Validasi struktur `ingredients` belum mendalam (misal konsistensi unit, alternatif unik).
+- Saat multipart, field array/object (ingredients, langkahMasak, nutrisi, tags) masih dikirim sebagai string JSON — backend belum melakukan parse otomatis. (Solusi sementara: jika butuh kirim tanpa gambar gunakan application/json sehingga parsing otomatis oleh Express.)
 
 ## Rekomendasi Integrasi Frontend (Resep)
 - Simpan array/objek (ingredients/langkahMasak/tags/nutrisi) sebagai JSON string saat kirim multipart.
@@ -222,7 +225,16 @@ const resepImgUrl = `${BASE_URL}/uploads/${resep.gambar}`;
 - Jika ingin edit + ganti gambar: sementara lakukan dua langkah (PATCH untuk teks lalu rencana endpoint khusus /resep/:id/gambar di masa depan).
 
 ---
-Perubahan berikutnya: pagination, filter by bahan/tag, kombinasi resep, daftar belanja agregat, upload ganti gambar di PATCH.
+Perubahan berikutnya: pagination, filter by bahan/tag, kombinasi resep, daftar belanja agregat, auto-parse JSON multipart, konsistensi format error.
+
+---
+
+## Changelog (Backend)
+Tanggal 2025-09-14:
+- PATCH /artikel kini mendukung ganti gambar (hapus file lama otomatis).
+- PATCH /resep dikonfirmasi mendukung ganti gambar (sudah ada upload middleware).
+- README diperbarui: hapus catatan lama bahwa PATCH belum mendukung update gambar.
+- Tambah catatan keterbatasan parsing JSON pada multipart Resep.
 
 ---
 
