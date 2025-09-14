@@ -14,7 +14,7 @@ const IngredientSchema = new mongoose.Schema({
     type: String, 
     required: true, 
     trim: true 
-}, // contoh: gram, butir, sdm
+}, 
   alternatif: [{ 
     type: String, 
     trim: true, 

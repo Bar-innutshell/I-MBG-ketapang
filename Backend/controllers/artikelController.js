@@ -1,4 +1,6 @@
 const Artikel = require('../model/article');
+const fs = require('fs');
+const path = require('path');
 
 
 
@@ -29,9 +31,26 @@ exports.lihatsemuaArtikel = async (req, res) => {
 
 exports.updateArtikel = async (req, res) =>{
     try{
+        const {id} = req.params;
+        const updateData= {...req.body};
+        if(req.file){
+            updateData.gambar = req.file.filename;
+            console.log("terdeteksi gambar baru ygy"); ///ini juga apus yak hwhw
+            
+            const artikelLama = await Artikel.findById(id);
+
+            if(artikelLama && artikelLama.gambar){
+                const pathGambarLama = path.join(__dirname,'../uploads', artikelLama.gambar);
+
+                fs.unlink(pathGambarLama, (err)=>{
+                    if(err) console.error("Gagal hapus gambar lama", err);
+                });
+            }
+        }
+
         const artikelTerupdate = await Artikel.findByIdAndUpdate(
             req.params.id,
-            req.body,
+            updateData,
             {new:true}
         );
         if(!artikelTerupdate){
@@ -42,6 +61,7 @@ exports.updateArtikel = async (req, res) =>{
         res.status(400).json({message:error.message});
     }
 }
+
 
 exports.hapusArtikel = async (req, res) =>{
     try{

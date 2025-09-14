@@ -10,7 +10,7 @@ router.route('/')
 
 router.route('/:id')
     .get(artikelController.lihatsatuArtikel)
-    .patch(artikelController.updateArtikel)
+    .patch(upload.single('gambar'), artikelController.updateArtikel)
     .delete(artikelController.hapusArtikel);
 
 module.exports = router;
