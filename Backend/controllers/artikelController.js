@@ -1,4 +1,4 @@
-const Artikel = require('../article');
+const Artikel = require('../model/article');
 
 
 

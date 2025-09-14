@@ -29,8 +29,10 @@ app.get('/',(req, res)=> {
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const artikelRoute = require('./routes/artikelRoute');
-app.use('/artikel', artikelRoute);
+const resepRoute = require('./routes/resepRoute');
 
+app.use('/artikel', artikelRoute);
+app.use('/resep', resepRoute);
 
 
 
