@@ -1,5 +1,9 @@
 const express = require('express');
+require ('dotenv').config();
 const mongoose = require('mongoose');
+mongoose.connect(process.env.MONGO_URI) 
+    .then(() => console.log('Berhasil terhubung ke MongoDB'))
+    .catch(err => console.error('Gagal terhubung ke MongoDB:', err));
 
 const cors = require('cors');
 
@@ -8,19 +12,16 @@ const path = require('path');
 
 
 const app = express();
-app.use(express.json());
+
 const port = 3000;
 
-const mongoURL = 'mongodb://localhost:27017/';
+
 
 
 app.use(cors());
 app.use(express.json());
 
 
-mongoose.connect(mongoURL)
-    .then(() => console.log('Berhasil sempurna gess'))
-    .catch(err => console.error ('Gagal njirrr', err));
 
 app.get('/',(req, res)=> {
     res.send('Inilah my backend');
