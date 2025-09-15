@@ -8,7 +8,11 @@
     {
       "src": "Frontend/my_mbg/package.json",
       "use": "@vercel/static-build",
-      "config": { "installCommand": "npm install", "buildCommand": "npm run build", "outputDirectory": "build" }
+      "config": {
+        "installCommand": "npm install",
+        "buildCommand": "npm run build",
+        "outputDirectory": "build"
+      }
     }
   ],
   "routes": [
