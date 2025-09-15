@@ -6,7 +6,7 @@
       "use": "@vercel/node"
     },
     {
-      "src": "Frontend/package.json",
+      "src": "Frontend/my_mbg/package.json",
       "use": "@vercel/static-build",
       "config": { "installCommand": "npm install", "buildCommand": "npm run build", "outputDirectory": "build" }
     }
@@ -18,7 +18,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "Frontend/build/$1"
+      "dest": "Frontend/my_mbg/build/$1"
     }
   ]
 }
