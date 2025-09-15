@@ -4,25 +4,12 @@
     {
       "src": "Backend/index.js",
       "use": "@vercel/node"
-    },
-    {
-      "src": "Frontend/my_mbg/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "installCommand": "npm install",
-        "buildCommand": "npm run build",
-        "outputDirectory": "build"
-      }
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
       "dest": "Backend/index.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "Frontend/my_mbg/build/$1"
     }
   ]
 }
