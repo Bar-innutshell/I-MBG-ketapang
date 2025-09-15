@@ -97,7 +97,9 @@ Catatan: sebagian pesan error masih menggunakan bahasa informal; gunakan kode st
 - Untuk daftar: konsumsi `GET /artikel` lalu bangun URL gambar per item jika `gambar` ada.
 - Untuk detail: gunakan `GET /artikel/{id}` dan tampilkan gambar dari `/uploads/{filename}` bila tersedia.
 - Untuk create: kirim `multipart/form-data` dengan field `judul`, `isi`, dan file `gambar` opsional.
-- Untuk update teks: gunakan `PATCH /artikel/{id}` dengan JSON; hindari mengganti `gambar` sampai dukungan upload di PATCH tersedia.
+- Untuk update:
+  - Jika hanya teks: `PATCH /artikel/{id}` dengan JSON.
+  - Jika ganti gambar: gunakan `multipart/form-data` (kirim hanya field yang berubah + `gambar`). Server otomatis hapus file lama.
 
 ---
 Dokumentasi ini akan diperbarui saat endpoint baru ditambahkan (mis. detail artikel, pagination, update gambar).
@@ -235,6 +237,64 @@ Tanggal 2025-09-14:
 - PATCH /resep dikonfirmasi mendukung ganti gambar (sudah ada upload middleware).
 - README diperbarui: hapus catatan lama bahwa PATCH belum mendukung update gambar.
 - Tambah catatan keterbatasan parsing JSON pada multipart Resep.
+
+Tanggal 2025-09-15:
+- Koreksi dokumentasi: Rekomendasi update Artikel sekarang mencantumkan dukungan ganti gambar.
+- Penambahan bagian status deployment (Vercel) & kendala.
+
+---
+
+## Deployment Status (Vercel)
+STATUS: Deploy ke Vercel saat ini GAGAL / BELUM BERHASIL.
+
+Kemungkinan penyebab & penjelasan:
+1. Struktur proyek tidak mengikuti pola default Vercel (serverless). File `index.js` berada di folder `Backend/` bukan di root atau `api/`.
+2. Vercel serverless function tidak mendukung penyimpanan file permanen ke filesystem (`/uploads`) – storage akan volatile. Upload gambar perlu layanan eksternal (Cloudinary, S3, Supabase storage) atau gunakan Vercel KV/Object Storage (belum tersedia persisten untuk binary besar secara langsung) atau pindah ke penyedia VPS / Render / Railway.
+3. Variabel lingkungan `MONGO_URI` mungkin belum diset di dashboard Vercel (Project Settings → Environment Variables). Menyertakan `.env` tidak otomatis dibaca di build serverless jika tidak dipindahkan ke ENV.
+4. IP Atlas: Pastikan di MongoDB Atlas Network Access sudah mengizinkan akses dari IP Vercel (biasanya gunakan 0.0.0.0/0 sementara; ganti lebih ketat nanti).
+5. Tidak ada `start` script khusus untuk produksi serverless. Untuk Vercel + Node server tradisional butuh `vercel.json` custom atau refactor menjadi API routes.
+6. Multer menulis ke disk lokal; di serverless bisa error (EACCES atau file hilang setelah cold start).
+
+Rekomendasi solusi:
+Opsi A (Refactor ke Serverless API Routes):
+- Pindahkan logika ke folder `api/` (misal `api/artikel.js`, `api/resep.js`).
+- Ganti penyimpanan gambar → Cloudinary (upload preset) atau S3 (signed URL) lalu simpan hanya URL di Mongo.
+- Hilangkan penggunaan Express penuh; gunakan minimal handler (Vercel akan bungkus otomatis).
+
+Opsi B (Tetap Express, Deploy ke Platform Lain):
+- Gunakan Railway / Render / Fly.io / Docker di VPS sehingga folder `uploads/` bisa persist.
+- Tambahkan reverse proxy / Nginx optional.
+
+Opsi C (Hybrid):
+- Simpan gambar ke Cloudinary.
+- Tetap di Vercel gunakan adapter Express (misal `@vercel/node`) dengan `vercel.json` seperti:
+```
+{
+  "builds": [
+    { "src": "Backend/index.js", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/uploads/(.*)", "dest": "/api/uploads/$1" },
+    { "src": "/(.*)", "dest": "Backend/index.js" }
+  ]
+}
+```
+Catatan: Tetap tidak persisten untuk file. Harus migrasi storage.
+
+Langkah cepat sementara (jika ingin lanjut Vercel + Cloudinary):
+1. Daftar Cloudinary → dapatkan CLOUDINARY_URL atau API key.
+2. Ganti middleware multer: gunakan `multer-memory-storage` + unggah buffer ke Cloudinary.
+3. Simpan `secure_url` ke field `gambar`.
+4. Hapus serving static `/uploads` dari local disk.
+
+Checklist sebelum mencoba deploy lagi:
+- [ ] Buat `vercel.json` (jika pilih opsi C) atau refactor ke `api/` (opsi A).
+- [ ] Pindahkan storage gambar ke layanan eksternal.
+- [ ] Set ENV di Vercel: `MONGO_URI`, (opsional) `CLOUDINARY_URL`.
+- [ ] Pastikan Atlas network akses open/whitelisted.
+- [ ] Uji connection di local dengan env identik.
+
+Jika ingin, kita bisa lanjut langkah migrasi Cloudinary + refactor struktur untuk Vercel pada sesi berikutnya.
 
 ---
 
