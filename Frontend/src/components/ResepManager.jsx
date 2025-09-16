@@ -17,7 +17,11 @@ export default function ResepManager(){
 
   async function load(){
     setLoading(true); setError(null);
-    try { const data = await resepAPI.list(); setItems(data); } catch(e){ setError(e.message); } finally { setLoading(false); }
+    try {
+      const data = await resepAPI.list();
+      const arr = Array.isArray(data) ? data : (data?.data ?? data?.items ?? []);
+      setItems(Array.isArray(arr) ? arr : []);
+    } catch(e){ setError(e.message); } finally { setLoading(false); }
   }
   useEffect(()=>{ load(); }, []);
 
@@ -75,75 +79,86 @@ export default function ResepManager(){
   }
 
   return (
-    <div className="panel">
-      <h2>Resep Manager <span style={{fontSize:'0.7em', fontWeight:'normal'}}>(AI generated)</span></h2>
-      {error && <div className="error">{error}</div>}
-      <form onSubmit={submit} className="box" style={{display:'grid', gap:'8px', marginBottom:'1rem'}}>
+    <div>
+      <h2 className="text-xl font-semibold">Resep Manager <span className="text-sm font-normal text-slate-500">(AI generated)</span></h2>
+      {error && <div className="mt-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
+
+      <form onSubmit={submit} className="mt-4 grid gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <div>
-          <label>Judul<br/><input name="judul" value={form.judul} onChange={onChange} required /></label>
+          <label className="block text-sm font-medium text-slate-700">Judul</label>
+          <input name="judul" value={form.judul} onChange={onChange} required className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none" />
         </div>
         <div>
-          <label>Deskripsi<br/><textarea name="deskripsi" value={form.deskripsi} onChange={onChange} rows={2} /></label>
+          <label className="block text-sm font-medium text-slate-700">Deskripsi</label>
+          <textarea name="deskripsi" value={form.deskripsi} onChange={onChange} rows={2} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none" />
         </div>
-        <div style={{display:'flex', gap:'8px'}}>
-          <label style={{flex:1}}>Porsi<br/><input name="porsi" value={form.porsi} onChange={onChange} /></label>
-          <label style={{flex:1}}>Durasi (menit)<br/><input name="durasiMenit" value={form.durasiMenit} onChange={onChange} /></label>
-          <label style={{flex:1}}>Kesulitan<br/>
-            <select name="tingkatKesulitan" value={form.tingkatKesulitan} onChange={onChange}>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-700">Porsi</label>
+            <input name="porsi" value={form.porsi} onChange={onChange} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700">Durasi (menit)</label>
+            <input name="durasiMenit" value={form.durasiMenit} onChange={onChange} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700">Kesulitan</label>
+            <select name="tingkatKesulitan" value={form.tingkatKesulitan} onChange={onChange} className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none">
               <option value="mudah">mudah</option>
               <option value="sedang">sedang</option>
               <option value="sulit">sulit</option>
             </select>
-          </label>
-          <label style={{flex:1}}>Biaya (Rp)<br/><input name="perkiraanBiaya" value={form.perkiraanBiaya} onChange={onChange} /></label>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700">Biaya (Rp)</label>
+            <input name="perkiraanBiaya" value={form.perkiraanBiaya} onChange={onChange} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none" />
+          </div>
         </div>
         <div>
-          <label>Ingredients (JSON array)<br/>
-            <textarea name="ingredients" value={form.ingredients} onChange={onChange} rows={4} />
-          </label>
+          <label className="block text-sm font-medium text-slate-700">Ingredients (JSON array)</label>
+          <textarea name="ingredients" value={form.ingredients} onChange={onChange} rows={4} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none" />
         </div>
         <div>
-          <label>Langkah Masak (JSON array)<br/>
-            <textarea name="langkahMasak" value={form.langkahMasak} onChange={onChange} rows={3} />
-          </label>
+          <label className="block text-sm font-medium text-slate-700">Langkah Masak (JSON array)</label>
+          <textarea name="langkahMasak" value={form.langkahMasak} onChange={onChange} rows={3} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none" />
         </div>
         <div>
-          <label>Nutrisi (JSON object)<br/>
-            <textarea name="nutrisi" value={form.nutrisi} onChange={onChange} rows={2} />
-          </label>
+          <label className="block text-sm font-medium text-slate-700">Nutrisi (JSON object)</label>
+          <textarea name="nutrisi" value={form.nutrisi} onChange={onChange} rows={2} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none" />
         </div>
         <div>
-          <label>Tags (JSON array)<br/>
-            <textarea name="tags" value={form.tags} onChange={onChange} rows={2} />
-          </label>
+          <label className="block text-sm font-medium text-slate-700">Tags (JSON array)</label>
+          <textarea name="tags" value={form.tags} onChange={onChange} rows={2} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none" />
         </div>
         <div>
-          <label>Gambar {editingId && '(kosongkan jika tidak ganti)'}<br/>
-            <input type="file" name="gambar" accept="image/*" onChange={onChange} />
+          <label className="block text-sm font-medium text-slate-700">Gambar {editingId && '(kosongkan jika tidak ganti)'}
+            <input type="file" name="gambar" accept="image/*" onChange={onChange} className="mt-1 block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-blue-600 file:px-3 file:py-2 file:text-white hover:file:bg-blue-700" />
           </label>
         </div>
-        <div>
-          <button type="submit">{editingId ? 'Update' : 'Create'}</button>
-          {editingId && <button type="button" style={{marginLeft:8}} onClick={reset}>Cancel</button>}
+        <div className="flex items-center gap-2">
+          <button type="submit" className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">{editingId ? 'Update' : 'Create'}</button>
+          {editingId && <button type="button" onClick={reset} className="inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Cancel</button>}
         </div>
       </form>
 
-      <div>
-        <h3>Daftar Resep ({items.length}) {loading && '...loading'}</h3>
-        {items.map(r => (
-          <div key={r._id} style={{border:'1px solid #ccc', padding:'8px', marginBottom:'6px', display:'flex', gap:'8px'}}>
-            {r.gambar && <img src={imageUrl(r.gambar)} alt="thumb" style={{width:70, height:70, objectFit:'cover', borderRadius:4}} />}
-            <div style={{flex:1}}>
-              <strong>{r.judul}</strong> <span style={{fontSize:'.75em'}}>({r.tingkatKesulitan})</span>
-              <div style={{fontSize:'.8em', marginTop:4}}>Porsi: {r.porsi} | Durasi: {r.durasiMenit}m | Biaya: {r.perkiraanBiaya}</div>
-              <div style={{fontSize:'.75em', marginTop:4}}>{(r.tags||[]).join(', ')}</div>
-              <div style={{marginTop:4}}>
-                <button onClick={()=>startEdit(r)}>Edit</button>
-                <button style={{marginLeft:6, color:'red'}} onClick={()=>remove(r._id)}>Hapus</button>
+      <div className="mt-6">
+        <h3 className="text-lg font-medium">Daftar Resep ({items.length}) {loading && <span className="text-sm text-slate-500">...loading</span>}</h3>
+        <div className="mt-3 space-y-2">
+          {items.map(r => (
+            <div key={r._id} className="flex gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+              {r.gambar && <img src={imageUrl(r.gambar)} alt="thumb" className="h-[70px] w-[70px] rounded object-cover" />}
+              <div className="flex-1">
+                <div className="font-semibold">{r.judul} <span className="text-xs font-normal text-slate-500">({r.tingkatKesulitan})</span></div>
+                <div className="mt-1 text-xs text-slate-600">Porsi: {r.porsi} | Durasi: {r.durasiMenit}m | Biaya: {r.perkiraanBiaya}</div>
+                <div className="mt-1 text-xs text-slate-500">{(r.tags||[]).join(', ')}</div>
+                <div className="mt-2 flex gap-2">
+                  <button onClick={()=>startEdit(r)} className="inline-flex items-center rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50">Edit</button>
+                  <button onClick={()=>remove(r._id)} className="inline-flex items-center rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700">Hapus</button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );

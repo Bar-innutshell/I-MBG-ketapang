@@ -1,6 +1,6 @@
 // AI-generated component to test Artikel API
 import React, { useEffect, useState } from 'react';
-import { resepAPI, imageUrl } from '../hooks/api';
+import { artikelAPI, imageUrl } from '../hooks/api';
 
 export default function ArtikelManager() {
   const [items, setItems] = useState([]);
@@ -11,7 +11,11 @@ export default function ArtikelManager() {
 
   async function load() {
     setLoading(true); setError(null);
-    try { const data = await artikelAPI.list(); setItems(data); } catch(e){ setError(e.message);} finally { setLoading(false);} }
+    try {
+      const data = await artikelAPI.list();
+      const arr = Array.isArray(data) ? data : (data?.data ?? data?.items ?? []);
+      setItems(Array.isArray(arr) ? arr : []);
+    } catch(e){ setError(e.message);} finally { setLoading(false);} }
 
   useEffect(()=>{ load(); }, []);
 
@@ -44,44 +48,47 @@ export default function ArtikelManager() {
   }
 
   return (
-    <div className="panel">
-      <h2>Artikel Manager <span style={{fontSize:'0.7em', fontWeight:'normal'}}>(AI generated)</span></h2>
-      {error && <div className="error">{error}</div>}
-      <form onSubmit={submit} className="box" style={{marginBottom:'1rem'}}>
+    <div>
+      <h2 className="text-xl font-semibold">Artikel Manager <span className="text-sm font-normal text-slate-500">(AI generated)</span></h2>
+      {error && <div className="mt-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
+
+      <form onSubmit={submit} className="mt-4 space-y-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <div>
-          <label>Judul<br/>
-            <input name="judul" value={form.judul} onChange={onChange} required />
-          </label>
+          <label className="block text-sm font-medium text-slate-700">Judul</label>
+          <input name="judul" value={form.judul} onChange={onChange} required className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none" />
         </div>
         <div>
-          <label>Isi<br/>
-            <textarea name="isi" value={form.isi} onChange={onChange} rows={4} required />
-          </label>
+          <label className="block text-sm font-medium text-slate-700">Isi</label>
+          <textarea name="isi" value={form.isi} onChange={onChange} rows={4} required className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none" />
         </div>
         <div>
-          <label>Gambar {editingId && '(kosongkan jika tidak ganti)'}<br/>
-            <input type="file" name="gambar" accept="image/*" onChange={onChange} />
+          <label className="block text-sm font-medium text-slate-700">Gambar {editingId && '(kosongkan jika tidak ganti)'}
+            <input type="file" name="gambar" accept="image/*" onChange={onChange} className="mt-1 block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-blue-600 file:px-3 file:py-2 file:text-white hover:file:bg-blue-700" />
           </label>
         </div>
-        <button type="submit">{editingId ? 'Update' : 'Create'}</button>
-        {editingId && <button type="button" onClick={resetForm} style={{marginLeft:8}}>Cancel</button>}
+        <div className="flex items-center gap-2">
+          <button type="submit" className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">{editingId ? 'Update' : 'Create'}</button>
+          {editingId && <button type="button" onClick={resetForm} className="inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Cancel</button>}
+        </div>
       </form>
 
-      <div>
-        <h3>Daftar ({items.length}) {loading && '...loading'}</h3>
-        {items.map(a => (
-          <div key={a._id} className="card" style={{border:'1px solid #ccc', padding:'8px', marginBottom:'6px', display:'flex', gap:'8px'}}>
-            {a.gambar && <img src={imageUrl(a.gambar)} alt="thumb" style={{width:70, height:70, objectFit:'cover', borderRadius:4}} />}
-            <div style={{flex:1}}>
-              <strong>{a.judul}</strong>
-              <div style={{whiteSpace:'pre-wrap', fontSize:'.85em'}}>{a.isi.slice(0,120)}{a.isi.length>120?'...':''}</div>
-              <div style={{marginTop:4}}>
-                <button type="button" onClick={()=>startEdit(a)}>Edit</button>
-                <button type="button" onClick={()=>remove(a._id)} style={{marginLeft:6, color:'red'}}>Hapus</button>
+      <div className="mt-6">
+        <h3 className="text-lg font-medium">Daftar ({items.length}) {loading && <span className="text-sm text-slate-500">...loading</span>}</h3>
+        <div className="mt-3 space-y-2">
+          {items.map(a => (
+            <div key={a._id} className="flex gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+              {a.gambar && <img src={imageUrl(a.gambar)} alt="thumb" className="h-[70px] w-[70px] rounded object-cover" />}
+              <div className="flex-1">
+                <div className="font-semibold">{a.judul}</div>
+                <div className="mt-1 whitespace-pre-wrap text-sm text-slate-700">{a.isi.slice(0,120)}{a.isi.length>120?'...':''}</div>
+                <div className="mt-2 flex gap-2">
+                  <button type="button" onClick={()=>startEdit(a)} className="inline-flex items-center rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50">Edit</button>
+                  <button type="button" onClick={()=>remove(a._id)} className="inline-flex items-center rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700">Hapus</button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
