@@ -1,6 +1,6 @@
 // AI-generated component to test Resep API
 import React, { useEffect, useState } from 'react';
-import { resepAPI, imageUrl } from '../api';
+import { resepAPI, imageUrl } from '../hooks/api';
 
 function parseMaybeJSON(v){
   if (v === '' || v == null) return undefined;

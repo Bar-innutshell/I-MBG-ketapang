@@ -1,6 +1,6 @@
 // AI-generated component to test Artikel API
 import React, { useEffect, useState } from 'react';
-import { artikelAPI, imageUrl } from '../api';
+import { resepAPI, imageUrl } from '../hooks/api';
 
 export default function ArtikelManager() {
   const [items, setItems] = useState([]);

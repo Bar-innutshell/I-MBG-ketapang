@@ -1,0 +1,65 @@
+@import 'tailwindcss';
+/* If you're using Tailwind, keep the import above. This stylesheet provides
+	 simple, plain-CSS rules for the AI-generated demo UI used on Homepage.jsx. */
+
+:root{
+	--container-width: 1100px;
+	--bg: #f7f8fb;
+	--card: #ffffff;
+	--muted: #6b7280;
+	--accent: #2563eb;
+	--soft: #e6eefc;
+}
+
+*{box-sizing:border-box}
+html,body,#root{height:100%}
+body{
+	margin:0;
+	font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+	background:var(--bg);
+	color:#0f172a;
+	-webkit-font-smoothing:antialiased;
+	-moz-osx-font-smoothing:grayscale;
+}
+
+.container{
+	width:100%;
+	max-width:var(--container-width);
+	margin:0 auto;
+	padding:1rem;
+}
+
+.site-header{
+	background: linear-gradient(90deg, rgba(37,99,235,0.06), rgba(99,102,241,0.04));
+	border-bottom: 1px solid rgba(15,23,42,0.03);
+	padding:1.25rem 0;
+}
+.title-wrap{display:flex;align-items:baseline;gap:0.75rem}
+.title-wrap h1{margin:0;font-size:1.5rem}
+.muted{font-size:0.85rem;color:var(--muted)}
+.lead{margin:0.5rem 0 0;color:var(--muted);line-height:1.45}
+
+.main-content{padding:1.25rem 0}
+.tabs{display:flex;gap:0.5rem;margin-bottom:1rem}
+.tab-btn{
+	background:transparent;border:1px solid transparent;padding:0.5rem 0.9rem;border-radius:8px;cursor:pointer;font-weight:600;color:var(--muted);
+	transition:all .18s ease;box-shadow:none
+}
+.tab-btn:hover{transform:translateY(-2px)}
+.tab-btn.active{background:var(--card);color:var(--accent);border-color:rgba(37,99,235,0.12);box-shadow:0 6px 18px rgba(16,24,40,0.04)}
+
+.panel{background:transparent;padding:0}
+
+/* Generic card styles expected by the managers */
+.card{
+	background:var(--card);border-radius:12px;padding:1rem;border:1px solid rgba(15,23,42,0.04);box-shadow:0 8px 30px rgba(2,6,23,0.03);margin-bottom:1rem
+}
+
+.list-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem}
+
+.site-footer{padding:1rem 0;border-top:1px solid rgba(15,23,42,0.03);color:var(--muted);font-size:0.85rem}
+
+@media (max-width:640px){
+	.title-wrap{flex-direction:column;align-items:flex-start;gap:0.25rem}
+	.muted{display:inline-block}
+}
