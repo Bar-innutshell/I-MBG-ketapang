@@ -1,1 +1,32 @@
 @import "tailwindcss";
+
+/* Light/Dark base colors using CSS variables */
+:root {
+	color-scheme: light;
+	--base: 248 250 252; /* slate-50 */
+	--base-foreground: 15 23 42; /* slate-900 */
+}
+.dark {
+	color-scheme: dark;
+	--base: 2 6 23; /* slate-950 */
+	--base-foreground: 255 255 255; /* white */
+}
+
+.bg-base { background-color: rgb(var(--base)); }
+.text-base-foreground { color: rgb(var(--base-foreground)); }
+
+/* Dark overrides */
+.dark .bg-base { background-color: rgb(var(--base)); }
+.dark .text-base-foreground { color: rgb(var(--base-foreground)); }
+
+/* Subtle background gradient that matches the screenshots */
+.app-background {
+  background-image: radial-gradient(1200px 600px at 50% -200px, rgba(16,185,129,0.12), transparent),
+                    radial-gradient(800px 400px at 100% 0%, rgba(16,185,129,0.06), transparent),
+                    radial-gradient(800px 400px at 0% 0%, rgba(16,185,129,0.06), transparent);
+}
+.dark .app-background {
+  background-image: radial-gradient(1200px 600px at 50% -200px, rgba(52,211,153,0.10), transparent),
+                    radial-gradient(800px 400px at 100% 0%, rgba(52,211,153,0.06), transparent),
+                    radial-gradient(800px 400px at 0% 0%, rgba(52,211,153,0.06), transparent);
+}
