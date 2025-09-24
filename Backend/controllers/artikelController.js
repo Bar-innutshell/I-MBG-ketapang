@@ -22,8 +22,21 @@ exports.buatArtikel= async (req, res) => {
 
 exports.lihatsemuaArtikel = async (req, res) => {
     try{
-        const semuaArtikel = await Artikel.find();
-        res.json(semuaArtikel);
+        const page = Math.max(parseInt(req.query.page) || 1, 1);
+        const limit = Math.min(Math.max(parseInt(req.query.limit) || 10, 1), 100);
+        const search = (req.query.search || '').trim();
+        const filter = search ? { judul: { $regex: search, $options: 'i' } } : {};
+
+        const total = await Artikel.countDocuments(filter);
+        const semuaArtikel = await Artikel.find(filter)
+            .sort({ Tanggal: -1 })
+            .skip((page - 1) * limit)
+            .limit(limit);
+
+        res.json({
+            data: semuaArtikel,
+            pagination: { total, page, totalPages: Math.ceil(total / limit) }
+        });
     }catch(error){
         res.status(500).json({message:error.message});
     }
@@ -35,13 +48,10 @@ exports.updateArtikel = async (req, res) =>{
         const updateData= {...req.body};
         if(req.file){
             updateData.gambar = req.file.filename;
-            console.log("terdeteksi gambar baru ygy"); ///ini juga apus yak hwhw
-            
-            const artikelLama = await Artikel.findById(id);
 
+            const artikelLama = await Artikel.findById(id);
             if(artikelLama && artikelLama.gambar){
                 const pathGambarLama = path.join(__dirname,'../uploads', artikelLama.gambar);
-
                 fs.unlink(pathGambarLama, (err)=>{
                     if(err) console.error("Gagal hapus gambar lama", err);
                 });
@@ -49,12 +59,12 @@ exports.updateArtikel = async (req, res) =>{
         }
 
         const artikelTerupdate = await Artikel.findByIdAndUpdate(
-            req.params.id,
+            id,
             updateData,
-            {new:true}
+            { new:true, runValidators:true }
         );
         if(!artikelTerupdate){
-            return res.status(404).json({message:'Gaada njirr'});
+            return res.status(404).json({message:'Artikel tidak ditemukan'});
         }
         res.json(artikelTerupdate);
     }catch (error){
@@ -80,7 +90,7 @@ exports.lihatsatuArtikel = async (req, res) =>{
     try{
         const artikel = await Artikel.findById(req.params.id);
         if(!artikel){
-            return res.status(404).json({message:'Gaada njirr'});
+            return res.status(404).json({message:'Artikel tidak ditemukan'});
         }
         res.json(artikel);
     }catch (error){

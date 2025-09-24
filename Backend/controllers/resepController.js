@@ -34,8 +34,30 @@ function coerceComplexFields(body) {
 
 exports.lihatsemuaResep = async (req, res) => {
   try {
-    const semuaResep = await Resep.find();
-    res.json(semuaResep);
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 10, 1), 100);
+    const search = (req.query.search || '').trim();
+    const tag = (req.query.tag || '').trim();
+    const bahan = (req.query.bahan || '').trim();
+
+    const filter = {};
+    if (search) filter.judul = { $regex: search, $options: 'i' };
+    if (tag) {
+      const tags = tag.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+      if (tags.length) filter.tags = { $in: tags };
+    }
+    if (bahan) {
+      const arr = bahan.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+      if (arr.length) filter['ingredients.nama'] = { $in: arr };
+    }
+
+    const total = await Resep.countDocuments(filter);
+    const semuaResep = await Resep.find(filter)
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    res.json({ data: semuaResep, pagination: { total, page, totalPages: Math.ceil(total / limit) } });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

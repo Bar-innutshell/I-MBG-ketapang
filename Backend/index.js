@@ -1,43 +1,49 @@
 const express = require('express');
-require ('dotenv').config();
+require('dotenv').config();
 const mongoose = require('mongoose');
-mongoose.connect(process.env.MONGO_URI) 
-    .then(() => console.log('Berhasil terhubung ke MongoDB'))
-    .catch(err => console.error('Gagal terhubung ke MongoDB:', err));
-
 const cors = require('cors');
-
-const multer = require('multer');
 const path = require('path');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
+const { notFound, errorHandler } = require('./middleware/error');
 
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('Berhasil terhubung ke MongoDB'))
+  .catch(err => console.error('Gagal terhubung ke MongoDB:', err));
 
 const app = express();
+const port = process.env.PORT || 3000;
 
-const port = 3000;
-
-
-
-
+app.set('trust proxy', 1);
+app.use(helmet());
 app.use(cors());
+app.use(morgan('dev'));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-
-
-app.get('/',(req, res)=> {
-    res.send('Inilah my backend');
-});
-
+// Static uploads (tetap untuk dev; untuk prod/serverless disarankan Cloudinary)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Healthcheck
+app.get('/health', (req, res) => res.status(200).json({ status: 'ok', time: new Date().toISOString() }));
+
+// Rate limit dasar untuk API publik
+app.use(['/artikel','/resep'], rateLimit({ windowMs: 15 * 60 * 1000, max: 300 }));
 
 const artikelRoute = require('./routes/artikelRoute');
 const resepRoute = require('./routes/resepRoute');
+const giziRoute = require('./routes/giziRoute');
 
 app.use('/artikel', artikelRoute);
 app.use('/resep', resepRoute);
+app.use('/gizi', giziRoute);
 
+// 404 + Error handler
+app.use(notFound);
+app.use(errorHandler);
 
-
-app.listen(port, ()=> {
-    console.log(`server lagi jalan nih di http://localhost:${port}`);
+app.listen(port, () => {
+  console.log(`server lagi jalan nih di http://localhost:${port}`);
 });
 
