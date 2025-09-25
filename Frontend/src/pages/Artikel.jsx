@@ -5,3 +5,5 @@ export const Artikel = () => {
     <div>Artikel</div>
   )
 }
+
+export default Artikel;
