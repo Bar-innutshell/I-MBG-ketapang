@@ -27,20 +27,22 @@ export default function AsupanHarian() {
 
   const addItem = (it) => {
     const ok = addItemToday({ fdcId: it.fdcId, description: it.description, grams: 100 });
-    if (!ok) alert('Item sudah ada.');
+    if (ok) toast.success('Ditambahkan ke Asupan Harian (100g).');
+    else toast.info('Item sudah ada.');
   };
   const changeGrams = (id, g) => updateItemGrams(id, g);
-  const removeItem = (id) => { removeItemToday(id); toast.info('Item dihapus'); }
-  const clearAll = () => { clearToday(); toast.info('Asupan hari ini dibersihkan'); }
+  const removeItem = (id) => { removeItemToday(id); toast.info('Item dihapus.'); }
+  const clearAll = () => { clearToday(); toast.info('Asupan hari ini dibersihkan.'); }
 
   const hitung = async () => {
     try {
       const body = getTodayItems().map(x => ({ fdcId: x.fdcId, grams: Number(x.grams) || 0 }));
       const r = await estimateNutrition(body);
       setLastCalc(r);
+      toast.success('Perhitungan asupan berhasil.');
     } catch (e) {
       setLastCalc(null);
-      alert(e.message || 'Gagal menghitung');
+      toast.error('Gagal menghitung asupan.');
     }
   };
 
