@@ -1,4 +1,4 @@
-name: CI Aseli Ngawi 
+name: CI for React & Express
 on:
   pull_request:
     branches: ["main"]
@@ -19,7 +19,7 @@ jobs:
       - run: npm test
 
   backend:
-    name: Build & Test Backend
+    name: Test Backend
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -30,5 +30,4 @@ jobs:
         with:
           node-version: '18'
       - run: npm install
-      - run: npm run build # jika ada
       - run: npm test
