@@ -1,14 +1,36 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import useDebounce from '../hooks/useDebounce'
+import { searchGizi } from '../hooks/api'
 import { Flame, Apple, BookOpen, GraduationCap, Link as LinkIcon, TrendingUp } from 'lucide-react'
 
 export default function Homepage() {
   const [term, setTerm] = useState('')
   const navigate = useNavigate()
+  const debounced = useDebounce(term, 300)
+  const [sug, setSug] = useState({ open: false, loading: false, items: [] })
+
+  useEffect(() => {
+    const q = debounced.trim()
+    if (q.length < 2) { setSug(s => ({ ...s, items: [], open: false })); return }
+    let active = true
+    setSug({ open: true, loading: true, items: [] })
+    searchGizi({ query: q, page: 1, pageSize: 5 })
+      .then(js => { if (!active) return; setSug({ open: true, loading: false, items: js.data || [] }) })
+      .catch(() => { if (!active) return; setSug({ open: true, loading: false, items: [] }) })
+    return () => { active = false }
+  }, [debounced])
+
   const onSubmit = (e) => {
     e.preventDefault()
-    if (!term.trim()) return
-    navigate(`/compare-gizi?query=${encodeURIComponent(term.trim())}&page=1`)
+    const q = term.trim()
+    if (!q) return
+    navigate(`/compare-gizi?query=${encodeURIComponent(q)}&page=1`)
+  }
+
+  const pickSuggestion = (text) => {
+    navigate(`/compare-gizi?query=${encodeURIComponent(text)}&page=1`)
+    setSug({ open: false, loading: false, items: [] })
   }
 
   const stats = [
@@ -40,14 +62,43 @@ export default function Homepage() {
           </p>
 
           {/* Search mock */}
-          <form onSubmit={onSubmit}>
+          <form onSubmit={onSubmit} className="relative max-w-2xl mx-auto">
             <input
               value={term}
               onChange={(e) => setTerm(e.target.value)}
-              placeholder="Cari makanan, contoh: nasi putih"
-              className="w-full max-w-xl rounded-xl border border-black/10 dark:border-white/10 bg-white/80 dark:bg-slate-800/60 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+              onFocus={() => setSug(s => ({ ...s, open: s.items.length > 0 }))}
+              className="w-full px-4 py-3 border rounded bg-transparent"
+              placeholder="Cari makanan… (mis: ayam goreng)"
             />
-            <button type="submit" className="rounded-xl bg-emerald-500 text-white px-4 py-3 hover:bg-emerald-600">Cari Sekarang</button>
+            <button className="absolute right-1 top-1/2 -translate-y-1/2 px-3 py-2 rounded bg-emerald-600 text-white hover:bg-emerald-700">
+              Cari
+            </button>
+
+            {sug.open && (
+              <div className="absolute z-20 mt-2 w-full border rounded bg-card shadow-xl">
+                {sug.loading && <div className="px-3 py-2 text-sm text-muted-foreground">Memuat…</div>}
+                {!sug.loading && sug.items.length === 0 && (
+                  <div className="px-3 py-2 text-sm text-muted-foreground">Tidak ada saran</div>
+                )}
+                {!sug.loading && sug.items.length > 0 && (
+                  <ul className="max-h-72 overflow-auto">
+                    {sug.items.map(it => (
+                      <li key={it.fdcId}>
+                        <button
+                          type="button"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => pickSuggestion(it.description)}
+                          className="w-full text-left px-3 py-2 hover:bg-emerald-500/10"
+                        >
+                          <div className="font-medium">{it.description}</div>
+                          {it.brandOwner && <div className="text-xs text-muted-foreground">{it.brandOwner}</div>}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
           </form>
 
           <div className="mt-3 text-xs text-slate-500">Populer: Nasi goreng • Ayam bakar • Gado-gado • Tempe goreng</div>

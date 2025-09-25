@@ -106,7 +106,7 @@ export async function searchGizi({ query, page = 1, pageSize = 10, dataType = ''
 
 export async function getFoodDetail(fdcId) {
   const res = await fetch(`${API_BASE}/gizi/${fdcId}`);
-  if (!res.ok) throw new Error('Gagal memuat detail gizi');
+  if (!res.ok) throw new Error(await res.text().catch(()=>'Gagal memuat detail'));
   return res.json();
 }
 
