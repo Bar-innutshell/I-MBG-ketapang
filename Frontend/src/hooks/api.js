@@ -86,7 +86,63 @@ export const resepAPI = {
   remove: (id) => fetch(`${BASE}/resep/${id}`, { method: 'DELETE' }).then(handle)
 };
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
+export async function searchGizi({ query, page = 1, pageSize = 10, dataType = '' }) {
+  const qs = new URLSearchParams({
+    query,
+    page: String(page),
+    pageSize: String(pageSize),
+  });
+  if (dataType) qs.set('dataType', dataType);
+
+  const res = await fetch(`${API_BASE}/gizi/search?${qs.toString()}`);
+  if (!res.ok) {
+    const msg = await res.text().catch(() => '');
+    throw new Error(msg || 'Gagal memuat data gizi');
+  }
+  return res.json(); // { data, pagination }
+}
+
+export async function getFoodDetail(fdcId) {
+  const res = await fetch(`${API_BASE}/gizi/${fdcId}`);
+  if (!res.ok) throw new Error('Gagal memuat detail gizi');
+  return res.json();
+}
+
+export async function fetchResep({ search = '', page = 1, limit = 10 } = {}) {
+  const qs = new URLSearchParams({
+    search,
+    page: String(page),
+    limit: String(limit),
+  });
+  const res = await fetch(`${API_BASE}/resep?${qs.toString()}`);
+  if (!res.ok) throw new Error('Gagal memuat resep');
+  return res.json(); // { data, pagination }
+}
+
+export async function fetchArtikel({ search = '', page = 1, limit = 10 } = {}) {
+  const qs = new URLSearchParams({
+    search,
+    page: String(page),
+    limit: String(limit),
+  });
+  const res = await fetch(`${API_BASE}/artikel?${qs.toString()}`);
+  if (!res.ok) throw new Error('Gagal memuat artikel');
+  return res.json(); // { data, pagination }
+}
+
 export function imageUrl(fileName) {
   if (!fileName) return null;
   return `/uploads/${fileName}`;
+}
+
+export async function estimateNutrition(items) {
+  const res = await fetch(`${API_BASE}/gizi/estimate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ items }),
+  });
+  if (!res.ok) throw new Error(await res.text().catch(()=> 'Request gagal'));
+  return res.json();
 }

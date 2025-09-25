@@ -6,4 +6,4 @@ const Edukasi = () => {
   )
 }
 
-export default Edukasi
+export default Edukasi;
