@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { Apple, BookOpen, Home, Soup, Sun, Moon } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 
@@ -7,6 +7,7 @@ const navbarItems = [
     { label: 'Home', href: '/', icon: Home },
     { label: 'Artikel', href: '/artikel', icon: BookOpen },
     { label: 'Resep', href: '/resep', icon: Soup },
+    { label: 'Asupan', href: '/asupan-harian', icon: Sun},
 ];
 
 const Navbar = () => {
@@ -22,26 +23,14 @@ const Navbar = () => {
                         <span>I-MBG</span>
                     </Link>
 
-                    <ul className="hidden md:flex items-center gap-2 text-sm">
-                        {navbarItems.map(({ href, label, icon: Icon }) => {
-                            const active = pathname === href;
-                            return (
-                                <li key={href}>
-                                    <Link
-                                        to={href}
-                                        className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
-                                            active
-                                                ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300'
-                                                : 'text-slate-700 hover:bg-black/5 dark:text-slate-300 dark:hover:bg-white/5'
-                                        }`}
-                                    >
-                                        <Icon size={16} />
-                                        {label}
-                                    </Link>
-                                </li>
-                            );
-                        })}
-                    </ul>
+                    <div className="hidden md:flex items-center gap-2 text-sm">
+                        <nav className="flex items-center gap-4">
+                            <NavLink to="/" className={({isActive}) => isActive ? 'font-semibold' : ''}>Home</NavLink>
+                            <NavLink to="/artikel" className={({isActive}) => isActive ? 'font-semibold' : ''}>Artikel</NavLink>
+                            <NavLink to="/resep" className={({isActive}) => isActive ? 'font-semibold' : ''}>Resep</NavLink>
+                            <NavLink to="/asupan-harian" className={({isActive}) => isActive ? 'font-semibold text-emerald-500' : ''}>Asupan</NavLink>
+                        </nav>
+                    </div>
 
                     <div className="flex items-center gap-2">
                         <ThemeToggle />
