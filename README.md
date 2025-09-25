@@ -9,13 +9,11 @@ npm install
 
 Start the backend server:
 
-node index.js
+npm run dev
 
 The backend will run at http://localhost:3000.
 
 Frontend:
-
-Go to the my_mbg folder.
 
 Install dependencies:
 
@@ -23,6 +21,6 @@ npm install
 
 Start the React frontend:
 
-npm start
+npm run dev
 
 The frontend will run at http://localhost:3000 by default.
