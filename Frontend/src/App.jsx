@@ -10,6 +10,7 @@ import Navbar from './components/Navbar.jsx'
 import Footer from './components/Footer.jsx'
 import './index.css';
 import AsupanHarian from './pages/AsupanHarian.jsx'
+import ToastHost from './components/ToastHost.jsx'
 
 export default function App() {
   return (
@@ -27,6 +28,8 @@ export default function App() {
         </Routes>
       </main>
       <Footer />
+      {/* Toasts */}
+      <ToastHost />
     </div>
   )
 }

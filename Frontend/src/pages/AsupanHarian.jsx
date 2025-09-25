@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { searchGizi, estimateNutrition } from '../hooks/api';
 import { getTodayItems, addItemToday, updateItemGrams, removeItemToday, clearToday, subscribe } from '../lib/intakeStore';
+import { toast } from '../lib/toast'
 
 export default function AsupanHarian() {
   const [term, setTerm] = useState('');
@@ -29,8 +30,8 @@ export default function AsupanHarian() {
     if (!ok) alert('Item sudah ada.');
   };
   const changeGrams = (id, g) => updateItemGrams(id, g);
-  const removeItem = (id) => removeItemToday(id);
-  const clearAll = () => clearToday();
+  const removeItem = (id) => { removeItemToday(id); toast.info('Item dihapus'); }
+  const clearAll = () => { clearToday(); toast.info('Asupan hari ini dibersihkan'); }
 
   const hitung = async () => {
     try {

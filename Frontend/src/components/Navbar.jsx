@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { Apple, BookOpen, Home, Soup, Sun, Moon } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
+import { getTodayItems, subscribe } from '../lib/intakeStore';
 
 const navbarItems = [
     { label: 'Home', href: '/', icon: Home },
@@ -12,6 +13,15 @@ const navbarItems = [
 
 const Navbar = () => {
     const { pathname } = useLocation();
+    const [intakeCount, setIntakeCount] = useState(getTodayItems().length);
+
+    useEffect(() => {
+        const unsub = subscribe(() => setIntakeCount(getTodayItems().length));
+        // in case SSR/HMR
+        setIntakeCount(getTodayItems().length);
+        return unsub;
+    }, []);
+
     return (
     <header className="fixed inset-x-0 top-0 z-50 backdrop-blur-md bg-white/40 dark:bg-slate-900/40 supports-[backdrop-filter]:bg-white/25 dark:supports-[backdrop-filter]:bg-slate-900/25 border-b border-black/5 dark:border-white/5">
             <nav className="mx-auto max-w-6xl px-4">
@@ -23,14 +33,26 @@ const Navbar = () => {
                         <span>I-MBG</span>
                     </Link>
 
-                    <div className="hidden md:flex items-center gap-2 text-sm">
-                        <nav className="flex items-center gap-4">
-                            <NavLink to="/" className={({isActive}) => isActive ? 'font-semibold' : ''}>Home</NavLink>
-                            <NavLink to="/artikel" className={({isActive}) => isActive ? 'font-semibold' : ''}>Artikel</NavLink>
-                            <NavLink to="/resep" className={({isActive}) => isActive ? 'font-semibold' : ''}>Resep</NavLink>
-                            <NavLink to="/asupan-harian" className={({isActive}) => isActive ? 'font-semibold text-emerald-500' : ''}>Asupan</NavLink>
-                        </nav>
-                    </div>
+                    <ul className="hidden md:flex items-center gap-2 text-sm">
+                        {navbarItems.map(({ href, label, icon: Icon }) => {
+                            const active = pathname === href;
+                            return (
+                                <li key={href}>
+                                    <Link
+                                        to={href}
+                                        className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+                                            active
+                                                ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300'
+                                                : 'text-slate-700 hover:bg-black/5 dark:text-slate-300 dark:hover:bg-white/5'
+                                        }`}
+                                    >
+                                        <Icon size={16} />
+                                        {label}
+                                    </Link>
+                                </li>
+                            );
+                        })}
+                    </ul>
 
                     <div className="flex items-center gap-2">
                         <ThemeToggle />
