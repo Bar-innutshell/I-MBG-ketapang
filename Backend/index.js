@@ -7,6 +7,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const { notFound, errorHandler } = require('./middleware/error');
+const client = require('prom-client');
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('Berhasil terhubung ke MongoDB'))
@@ -17,7 +18,10 @@ const port = process.env.PORT || 3000;
 
 app.set('trust proxy', 1);
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:5173'],
+  credentials: false,
+}));
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -38,6 +42,13 @@ const giziRoute = require('./routes/giziRoute');
 app.use('/artikel', artikelRoute);
 app.use('/resep', resepRoute);
 app.use('/gizi', giziRoute);
+
+// Metrics endpoint
+client.collectDefaultMetrics();
+app.get('/metrics', async (req, res) => {
+  res.set('Content-Type', client.register.contentType);
+  res.end(await client.register.metrics());
+});
 
 // 404 + Error handler
 app.use(notFound);

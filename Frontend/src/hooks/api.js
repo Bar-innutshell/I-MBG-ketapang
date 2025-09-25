@@ -136,3 +136,13 @@ export function imageUrl(fileName) {
   if (!fileName) return null;
   return `/uploads/${fileName}`;
 }
+
+export async function estimateNutrition(items) {
+  const res = await fetch(`${API_BASE}/gizi/estimate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ items }),
+  });
+  if (!res.ok) throw new Error(await res.text().catch(()=> 'Request gagal'));
+  return res.json();
+}

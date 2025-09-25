@@ -31,7 +31,8 @@ exports.lihatsemuaArtikel = async (req, res) => {
         const semuaArtikel = await Artikel.find(filter)
             .sort({ Tanggal: -1 })
             .skip((page - 1) * limit)
-            .limit(limit);
+            .limit(limit)
+            .lean();
 
         res.json({
             data: semuaArtikel,

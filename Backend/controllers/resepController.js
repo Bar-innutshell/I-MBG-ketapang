@@ -55,7 +55,8 @@ exports.lihatsemuaResep = async (req, res) => {
     const semuaResep = await Resep.find(filter)
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
-      .limit(limit);
+      .limit(limit)
+      .lean();
 
     res.json({ data: semuaResep, pagination: { total, page, totalPages: Math.ceil(total / limit) } });
   } catch (error) {
