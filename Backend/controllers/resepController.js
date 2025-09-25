@@ -1,6 +1,7 @@
 const Resep = require('../model/resep');
 const fs = require('fs');
 const path = require('path');
+const axios = require('axios');
 
 // Helper: parse field kompleks jika masih string
 function coerceComplexFields(body) {
@@ -8,7 +9,6 @@ function coerceComplexFields(body) {
   jsonFields.forEach(f => {
     if (body[f] && typeof body[f] === 'string') {
       const raw = body[f].trim();
-      // Abaikan string kosong
       if (!raw) {
         body[f] = f === 'nutrisi' ? {} : [];
         return;
@@ -16,7 +16,6 @@ function coerceComplexFields(body) {
       try {
         body[f] = JSON.parse(raw);
       } catch (e) {
-        // Fallback: kalau tags dipisah koma
         if (f === 'tags') {
           body[f] = raw.split(',').map(t => t.trim()).filter(Boolean);
         } else {
@@ -25,13 +24,13 @@ function coerceComplexFields(body) {
       }
     }
   });
-  // Normalisasi tags lower-case
   if (Array.isArray(body.tags)) {
     body.tags = body.tags.map(t => (typeof t === 'string' ? t.trim().toLowerCase() : t)).filter(Boolean);
   }
   return body;
 }
 
+// ========== CRUD LOKAL ==========
 exports.lihatsemuaResep = async (req, res) => {
   try {
     const page = Math.max(parseInt(req.query.page) || 1, 1);
@@ -67,7 +66,6 @@ exports.lihatsemuaResep = async (req, res) => {
 exports.buatResep = async (req, res) => {
   try {
     coerceComplexFields(req.body);
-
     const resepBaru = new Resep({
       judul: req.body.judul,
       deskripsi: req.body.deskripsi,
@@ -81,7 +79,6 @@ exports.buatResep = async (req, res) => {
       tags: req.body.tags,
       gambar: req.file ? req.file.filename : null
     });
-
     await resepBaru.save();
     res.status(201).json(resepBaru);
   } catch (error) {
@@ -92,10 +89,7 @@ exports.buatResep = async (req, res) => {
 exports.updateResep = async (req, res) => {
   try {
     const { id } = req.params;
-    // Clone body agar bisa modifikasi
     const updateData = { ...req.body };
-
-    // Parse JSON string fields
     try {
       coerceComplexFields(updateData);
     } catch (e) {
@@ -104,7 +98,6 @@ exports.updateResep = async (req, res) => {
 
     if (req.file) {
       updateData.gambar = req.file.filename;
-
       const resepLama = await Resep.findById(id);
       if (resepLama && resepLama.gambar) {
         const pathGambarLama = path.join(__dirname, '../uploads', resepLama.gambar);
@@ -115,9 +108,7 @@ exports.updateResep = async (req, res) => {
     }
 
     const resepTerupdate = await Resep.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
-    if (!resepTerupdate) {
-      return res.status(404).json({ message: 'Resep tidak ditemukan' });
-    }
+    if (!resepTerupdate) return res.status(404).json({ message: 'Resep tidak ditemukan' });
     res.json(resepTerupdate);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -128,7 +119,6 @@ exports.hapusResep = async (req, res) => {
   try {
     const resep = await Resep.findByIdAndDelete(req.params.id);
     if (!resep) return res.status(404).json({ message: 'Resep tidak ditemukan' });
-    // (Opsional) hapus file gambar
     if (resep.gambar) {
       const pathGambar = path.join(__dirname, '../uploads', resep.gambar);
       fs.unlink(pathGambar, () => {});
@@ -148,3 +138,94 @@ exports.lihatResepdariID = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+// ========== END CRUD ==========
+
+// ========== PROXY TheMealDB ==========
+const mealDbCache = new Map();
+const MEALDB_TTL = 5 * 60 * 1000;
+const MEALDB_API = 'https://www.themealdb.com/api/json/v1/1';
+
+function cacheGet(k) {
+  const hit = mealDbCache.get(k);
+  if (!hit) return null;
+  if (Date.now() > hit.exp) {
+    mealDbCache.delete(k);
+    return null;
+  }
+  return hit.val;
+}
+function cacheSet(k, val) {
+  mealDbCache.set(k, { val, exp: Date.now() + MEALDB_TTL });
+}
+
+async function mealdbFetch(endpointWithQuery) {
+  const url = `${MEALDB_API}${endpointWithQuery}`;
+  const cached = cacheGet(url);
+  if (cached) return cached;
+  const { data } = await axios.get(url, { timeout: 8000 });
+  cacheSet(url, data);
+  return data;
+}
+
+exports.mealdbSearch = async (req, res) => {
+  try {
+    const { s, f } = req.query;
+    if (!s && !f) return res.json({ meals: null });
+    const q = s ? `/search.php?s=${encodeURIComponent(s)}` : `/search.php?f=${encodeURIComponent(f)}`;
+    const data = await mealdbFetch(q);
+    res.json(data);
+  } catch (e) {
+    res.status(502).json({ meals: null, error: 'MealDB fetch failed', detail: e.message });
+  }
+};
+
+exports.mealdbLookup = async (req, res) => {
+  try {
+    const { i } = req.query;
+    if (!i) return res.json({ meals: null });
+    const data = await mealdbFetch(`/lookup.php?i=${encodeURIComponent(i)}`);
+    res.json(data);
+  } catch (e) {
+    res.status(502).json({ meals: null, error: e.message });
+  }
+};
+
+exports.mealdbRandom = async (_req, res) => {
+  try {
+    const data = await mealdbFetch('/random.php');
+    res.json(data);
+  } catch (e) {
+    res.status(502).json({ meals: null, error: e.message });
+  }
+};
+
+exports.mealdbList = async (req, res) => {
+  try {
+    const { c, a, i } = req.query;
+    let path = '';
+    if (c === 'list') path = '/list.php?c=list';
+    else if (a === 'list') path = '/list.php?a=list';
+    else if (i === 'list') path = '/list.php?i=list';
+    else return res.json({ meals: null });
+    const data = await mealdbFetch(path);
+    res.json(data);
+  } catch (e) {
+    res.status(502).json({ meals: null, error: e.message });
+  }
+};
+
+exports.mealdbFilter = async (req, res) => {
+  try {
+    const { i, c, a } = req.query;
+    let path = '';
+    if (i) path = `/filter.php?i=${encodeURIComponent(i)}`;
+    else if (c) path = `/filter.php?c=${encodeURIComponent(c)}`;
+    else if (a) path = `/filter.php?a=${encodeURIComponent(a)}`;
+    else return res.json({ meals: null });
+    const data = await mealdbFetch(path);
+    res.json(data);
+  } catch (e) {
+    res.status(502).json({ meals: null, error: e.message });
+  }
+};
+// ========== END PROXY ==========
