@@ -1,23 +1,29 @@
-import React from 'react';
-import { useNavigate } from 'react-router';
-import { Flame, Apple, BookOpen, GraduationCap, Link as LinkIcon, TrendingUp } from 'lucide-react';
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Flame, Apple, BookOpen, GraduationCap, Link as LinkIcon, TrendingUp } from 'lucide-react'
 
 export default function Homepage() {
-  const navigate = useNavigate();
+  const [term, setTerm] = useState('')
+  const navigate = useNavigate()
+  const onSubmit = (e) => {
+    e.preventDefault()
+    if (!term.trim()) return
+    navigate(`/compare-gizi?query=${encodeURIComponent(term.trim())}&page=1`)
+  }
 
   const stats = [
     { icon: <Apple className="text-emerald-500" size={22} />, value: '1000+', label: 'Makanan' },
     { icon: <BookOpen className="text-emerald-500" size={22} />, value: '200+', label: 'Resep' },
     { icon: <TrendingUp className="text-emerald-500" size={22} />, value: '50k+', label: 'Pengguna' },
     { icon: <Flame className="text-emerald-500" size={22} />, value: '95%', label: 'Kepuasan' },
-  ];
+  ]
 
   const features = [
     { title: 'Gizi Makanan', desc: 'Cari dan pelajari kandungan gizi ribuan makanan Indonesia', icon: Apple },
     { title: 'Resep Sehat', desc: 'Koleksi resep bergizi dengan informasi nutrisi lengkap', icon: BookOpen },
     { title: 'Bandingkan', desc: 'Bandingkan nilai gizi antar makanan dan resep', icon: LinkIcon },
     { title: 'Edukasi', desc: 'Artikel dan tips untuk hidup lebih sehat', icon: GraduationCap },
-  ];
+  ]
 
   return (
     <div className="space-y-16">
@@ -34,13 +40,15 @@ export default function Homepage() {
           </p>
 
           {/* Search mock */}
-          <div className="mt-6 flex items-center gap-2 justify-center">
+          <form onSubmit={onSubmit}>
             <input
-              placeholder="Cari makanan atau resep..."
+              value={term}
+              onChange={(e) => setTerm(e.target.value)}
+              placeholder="Cari makanan, contoh: nasi putih"
               className="w-full max-w-xl rounded-xl border border-black/10 dark:border-white/10 bg-white/80 dark:bg-slate-800/60 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-400"
             />
-            <button className="rounded-xl bg-emerald-500 text-white px-4 py-3 hover:bg-emerald-600">Cari Sekarang</button>
-          </div>
+            <button type="submit" className="rounded-xl bg-emerald-500 text-white px-4 py-3 hover:bg-emerald-600">Cari Sekarang</button>
+          </form>
 
           <div className="mt-3 text-xs text-slate-500">Populer: Nasi goreng • Ayam bakar • Gado-gado • Tempe goreng</div>
         </div>
@@ -117,5 +125,5 @@ export default function Homepage() {
         </div>
       </section>
     </div>
-  );
+  )
 }
