@@ -9,6 +9,8 @@ import NotFoundpage from './pages/NotFoundpage.jsx'
 import Navbar from './components/Navbar.jsx'
 import Footer from './components/Footer.jsx'
 import './index.css';
+import AsupanHarian from './pages/AsupanHarian.jsx'
+import ToastHost from './components/ToastHost.jsx'
 
 export default function App() {
   return (
@@ -21,10 +23,13 @@ export default function App() {
           <Route path="/artikel" element={<Artikel />} />
           <Route path="/edukasi" element={<Edukasi />} />
           <Route path="/compare-gizi" element={<CompareGizi />} />
+          <Route path="/asupan-harian" element={<AsupanHarian />} />
           <Route path="*" element={<NotFoundpage />} />
         </Routes>
       </main>
       <Footer />
+      {/* Toasts */}
+      <ToastHost />
     </div>
   )
 }
