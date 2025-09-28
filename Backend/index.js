@@ -9,6 +9,7 @@ const rateLimit = require('express-rate-limit');
 const { notFound, errorHandler } = require('./middleware/error');
 const client = require('prom-client');
 
+
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('Berhasil terhubung ke MongoDB'))
   .catch(err => console.error('Gagal terhubung ke MongoDB:', err));
@@ -26,6 +27,7 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+
 // Static uploads (tetap untuk dev; untuk prod/serverless disarankan Cloudinary)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -42,6 +44,10 @@ const giziRoute = require('./routes/giziRoute');
 app.use('/artikel', artikelRoute);
 app.use('/resep', resepRoute);
 app.use('/gizi', giziRoute);
+
+// Route admin
+const adminArtikelRoute = require('./routes/adminArtikel'); // <-- pastikan path & nama file benar
+app.use('/api/admin/artikel', adminArtikelRoute);
 
 // Metrics endpoint
 client.collectDefaultMetrics();

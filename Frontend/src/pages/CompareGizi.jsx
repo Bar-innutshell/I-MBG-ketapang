@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { searchGizi } from '../hooks/api';
 import { addItemToday } from '../lib/intakeStore';
+import { toast } from '../lib/toast';
+import { getItems as getCompareItems, addItem as addCompareItem, removeItem as removeCompareItem, subscribe as subCompare } from '../lib/compareStore'
 
 export default function CompareGizi() {
   const [sp, setSp] = useSearchParams();
@@ -13,12 +15,15 @@ export default function CompareGizi() {
   const pageSize = 10;
 
   const [state, setState] = useState({ loading: false, data: [], pagination: null, error: '' });
-  const [compare, setCompare] = useState([]); // array of full item
+  const [compare, setCompare] = useState(getCompareItems());
   const [mode, setMode] = useState('per100g'); // 'per100g' | 'perServing'
   const addToDaily = (item) => {
   const ok = addItemToday({ fdcId: item.fdcId, description: item.description, grams: 100 });
-  if (ok) alert('Ditambahkan ke Asupan Harian');
-  else alert('Item sudah ada di Asupan Harian');
+  if (ok) {
+    toast.success('Ditambahkan ke Asupan Harian (100g).');
+  } else {
+    toast.info('Item sudah ada di Asupan Harian.');
+  }
 };
 
   useEffect(() => {
@@ -31,6 +36,12 @@ export default function CompareGizi() {
     return () => { active = false; };
   }, [query, page]);
 
+  useEffect(() => {
+    const unsub = subCompare((list) => setCompare(list));
+    setCompare(getCompareItems());
+    return unsub;
+  }, []);
+
   const submitSearch = (e) => {
     e.preventDefault();
     const q = term.trim();
@@ -39,9 +50,21 @@ export default function CompareGizi() {
   };
 
   const addToCompare = (item) => {
-    setCompare(prev => prev.some(x => x.fdcId === item.fdcId) ? prev : [...prev, item]);
+    // simpan juga per100g jika ada agar tabel langsung terisi
+    addCompareItem({
+      fdcId: item.fdcId,
+      description: item.description,
+      grams: 100,
+      macrosPer100g: item.macrosPer100g ?? (item.macros ? {
+        kcal: item.macros.energyKcal ?? null,
+        prot: item.macros.proteinG ?? null,
+        fat:  item.macros.fatG ?? null,
+        carb: item.macros.carbsG ?? null,
+      } : null),
+      servingInfo: item.servingInfo ?? null,
+    });
   };
-  const removeItem = (fdcId) => setCompare(prev => prev.filter(x => x.fdcId !== fdcId));
+  const removeItem = (fdcId) => removeCompareItem(fdcId);
   const clearAll = () => setCompare([]);
   const goPage = (p) => {
     const next = Math.max(1, p);
@@ -70,6 +93,16 @@ export default function CompareGizi() {
     const v = src?.[key];
     return (v == null || Number.isNaN(v)) ? '-' : v;
   });
+
+  // valueOf disesuaikan untuk fallback ke item di store
+  const valueOf = (item, key) => {
+    const src = mode === 'per100g'
+      ? (item.macrosPer100g ?? null)
+      : (item.macrosPerServing ?? null);
+    if (!src) return '-';
+    const v = src[key];
+    return v == null ? '-' : v;
+  };
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -158,7 +191,9 @@ export default function CompareGizi() {
                   <li key={item.fdcId} className="p-3 hover:bg-emerald-500/5 transition-colors">
                     <div className="flex items-start gap-3">
                       <div className="flex-1 min-w-0">
-                        <div className="font-semibold truncate" title={item.description}>{item.description}</div>
+                        <div className="font-semibold">
+                          <Link to={`/gizi/${item.fdcId}`} className="hover:underline">{item.description}</Link>
+                        </div>
                         {item.brandOwner && <div className="text-xs text-muted-foreground">{item.brandOwner}</div>}
                         <div className="mt-1 flex flex-wrap gap-2 text-xs text-muted-foreground">
                           <span>Kalori/100g: {item.macrosPer100g?.kcal ?? item.macros?.energyKcal ?? '-'}</span>
