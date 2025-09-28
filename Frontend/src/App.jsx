@@ -1,6 +1,4 @@
 import { Routes, Route } from 'react-router-dom'
-// Ganti default import menjadi named import sesuai nama export di masing-masing file:
-import Artikel from './pages/Artikel.jsx'
 import Resep from './pages/Resep.jsx'
 import Edukasi from './pages/Edukasi.jsx'
 import CompareGizi from './pages/CompareGizi.jsx'
@@ -12,6 +10,8 @@ import './index.css';
 import AsupanHarian from './pages/AsupanHarian.jsx'
 import ToastHost from './components/ToastHost.jsx';
 import GiziDetail from './pages/GiziDetail.jsx'
+import ArtikelList from "./pages/ArtikelList";
+import AdminTambahArtikel from "./pages/AdminTambahArtikel";
 
 export default function App() {
   return (
@@ -21,11 +21,12 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Homepage />} />
           <Route path="/resep" element={<Resep />} />
-          <Route path="/artikel" element={<Artikel />} />
+          <Route path="/artikel" element={<ArtikelList />} />
           <Route path="/edukasi" element={<Edukasi />} />
           <Route path="/compare-gizi" element={<CompareGizi />} />
           <Route path="/gizi/:fdcId" element={<GiziDetail />} />
           <Route path="/asupan-harian" element={<AsupanHarian />} />
+          <Route path="/admin/tambah" element={<AdminTambahArtikel />} />  {/* Admin */}
           <Route path="*" element={<NotFoundpage />} />
         </Routes>
       </main>
@@ -33,4 +34,7 @@ export default function App() {
       <ToastHost />
     </div>
   );
+
+
+
 }
