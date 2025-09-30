@@ -21,7 +21,7 @@ app.set('trust proxy', 1);
 app.use(helmet());
 app.use(cors({
   origin: ['http://localhost:5173'],
-  credentials: false,
+  credentials: true,
 }));
 app.use(morgan('dev'));
 app.use(express.json());
@@ -29,7 +29,7 @@ app.use(express.urlencoded({ extended: true }));
 
 
 // Static uploads (tetap untuk dev; untuk prod/serverless disarankan Cloudinary)
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static('uploads'));
 
 // Healthcheck
 app.get('/health', (req, res) => res.status(200).json({ status: 'ok', time: new Date().toISOString() }));
@@ -55,6 +55,30 @@ app.get('/metrics', async (req, res) => {
   res.set('Content-Type', client.register.contentType);
   res.end(await client.register.metrics());
 });
+
+// Nonaktifkan cache untuk semua route
+app.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store');
+  next();
+});
+
+app.get('/artikel/:id', async (req, res) => {
+  const { id } = req.params;
+  console.log("Mencari artikel dengan ID:", id);
+
+  try {
+    const artikel = await ArtikelModel.findById(id);
+    console.log("Hasil query:", artikel);
+
+    if (!artikel) return res.status(404).json({ message: "Artikel tidak ditemukan" });
+
+    res.json({ data: artikel });
+  } catch (err) {
+    console.error("Error query artikel:", err.message);
+    res.status(500).json({ message: err.message });
+  }
+});
+
 
 // 404 + Error handler
 app.use(notFound);

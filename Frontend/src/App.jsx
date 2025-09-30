@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Resep from './pages/Resep.jsx'
 import Edukasi from './pages/Edukasi.jsx'
 import CompareGizi from './pages/CompareGizi.jsx'
@@ -12,6 +12,7 @@ import ToastHost from './components/ToastHost.jsx';
 import GiziDetail from './pages/GiziDetail.jsx'
 import ArtikelList from "./pages/ArtikelList";
 import AdminTambahArtikel from "./pages/AdminTambahArtikel";
+import ArtikelDetail from "./pages/ArtikelDetail";
 
 export default function App() {
   return (
@@ -27,6 +28,7 @@ export default function App() {
           <Route path="/gizi/:fdcId" element={<GiziDetail />} />
           <Route path="/asupan-harian" element={<AsupanHarian />} />
           <Route path="/admin/tambah" element={<AdminTambahArtikel />} />  {/* Admin */}
+          <Route path="/artikel/:id" element={<ArtikelDetail />} />
           <Route path="*" element={<NotFoundpage />} />
         </Routes>
       </main>
