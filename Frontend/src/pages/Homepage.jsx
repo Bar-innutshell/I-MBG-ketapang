@@ -58,12 +58,12 @@ export default function Homepage() {
             <span className="text-slate-900 dark:text-white">Dimulai dari Sini</span>
           </h1>
           {/* subtitle: gelapkan di light */}
-          <p className="mt-3 text-slate-700 dark:text-slate-300 max-w-2xl mx-auto">
+          <p className="mt-3 text-slate-700 dark:text-slate-300 max-w-3xl mx-auto">
             Temukan informasi gizi lengkap, resep sehat, dan edukasi nutrisi untuk hidup yang lebih baik
           </p>
 
           {/* Search mock */}
-          <form onSubmit={onSubmit} className="relative max-w-2xl mx-auto">
+          <form onSubmit={onSubmit} className="relative max-w-3xl mx-auto">
             <input
               value={term}
               onChange={(e) => setTerm(e.target.value)}
