@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Moon, Sun } from 'lucide-react';
 
-// Minimal theme toggle using HTML class 'dark' on <html>
+/** Toggle tema via class 'dark' di <html> */
 export default function ThemeToggle() {
   const [isDark, setIsDark] = useState(() =>
-    typeof document !== 'undefined' ? document.documentElement.classList.contains('dark') : false
+    typeof document !== 'undefined'
+      ? document.documentElement.classList.contains('dark')
+      : false
   );
 
   useEffect(() => {
-    // Keep state in sync if theme is changed in another tab or by other code
     const onStorage = (e) => {
       if (e.key === 'theme') {
         const enableDark = e.newValue === 'dark';
@@ -21,16 +22,18 @@ export default function ThemeToggle() {
   }, []);
 
   const toggle = () => {
-    const next = !isDark;
-    setIsDark(next);
-    document.documentElement.classList.toggle('dark', next);
-    localStorage.setItem('theme', next ? 'dark' : 'light');
+    const enableDark = !isDark;
+    setIsDark(enableDark);
+    document.documentElement.classList.toggle('dark', enableDark);
+    try {
+      localStorage.setItem('theme', enableDark ? 'dark' : 'light');
+    } catch (_) {}
   };
 
   return (
     <button
       onClick={toggle}
-      className="inline-flex items-center gap-2 rounded-lg px-3 py-2 border border-black/10 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+      className="inline-flex items-center gap-2 rounded-lg px-3 py-1.5 border border-default hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-foreground"
       aria-label="Toggle theme"
       aria-pressed={isDark}
       title={isDark ? 'Switch to Light' : 'Switch to Dark'}

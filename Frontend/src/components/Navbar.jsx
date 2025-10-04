@@ -23,7 +23,7 @@ const Navbar = () => {
     }, []);
 
     return (
-    <header className="fixed inset-x-0 top-0 z-50 backdrop-blur-md bg-white/40 dark:bg-slate-900/40 supports-[backdrop-filter]:bg-white/25 dark:supports-[backdrop-filter]:bg-slate-900/25 border-b border-black/5 dark:border-white/5">
+        <header className="fixed inset-x-0 top-0 z-50 backdrop-blur-md bg-white/70 dark:bg-slate-900/70 supports-[backdrop-filter]:bg-white/50 dark:supports-[backdrop-filter]:bg-slate-900/50 border-b border-black/5 dark:border-white/5">
             <nav className="mx-auto max-w-6xl px-4">
                 <div className="h-16 flex items-center justify-between">
                     <Link to="/" className="inline-flex items-center gap-2 font-bold">
@@ -40,11 +40,15 @@ const Navbar = () => {
                                 <li key={href}>
                                     <Link
                                         to={href}
-                                        className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
-                                            active
+                                        className={
+                                            `inline-flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ` +
+                                            (active
+                                                // aktif: hijau jelas di kedua mode
                                                 ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300'
+                                                // non-aktif: jauh lebih terbaca di light mode
                                                 : 'text-slate-700 hover:bg-black/5 dark:text-slate-300 dark:hover:bg-white/5'
-                                        }`}
+                                            )
+                                        }
                                     >
                                         <Icon size={16} />
                                         {label}
