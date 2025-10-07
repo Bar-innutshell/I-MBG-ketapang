@@ -38,7 +38,7 @@ export default function ArtikelList() {
     <div className="min-h-screen bg-[#070b18] p-6">
       <div className="max-w-5xl mx-auto space-y-8">
         <h2 className={`text-4xl font-bold ${primaryColor} text-center mb-8`}>
-          Edukasi & Artikel Sehat 💡
+          Edukasi & Artikel Sehat 
         </h2>
 
         {articles.map((a) => (
