@@ -110,27 +110,27 @@ export default function CompareGizi() {
       <form onSubmit={submitSearch} className="mb-5">
         <div className="flex gap-2">
           <input
-            className="flex-1 px-3 py-2 border rounded bg-transparent"
+            className="flex-1 px-4 py-2.5 border rounded-xl bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none transition-all"
             placeholder="Cari makanan lain... mis: nasi putih"
             value={term}
             onChange={(e) => setTerm(e.target.value)}
           />
-          <button className="px-4 py-2 rounded bg-emerald-600 text-white hover:bg-emerald-700">Cari</button>
+          <button className="px-5 py-2.5 rounded-xl bg-emerald-600 text-white font-medium hover:bg-emerald-700 shadow-md shadow-emerald-600/20 transition-all">Cari</button>
         </div>
         <p className="mt-1 text-xs text-muted-foreground">Kata kunci saat ini: “{query}”</p>
       </form>
 
       {/* Panel perbandingan (atas, tidak sticky) */}
-      <section className="mb-6 border rounded-lg bg-card/50">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 border-b">
+      <section className="mb-6 rounded-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50">
           <div className="font-semibold">Bandingkan kandungan gizi</div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <div className="text-sm text-muted-foreground">Tampilkan:</div>
-            <div className="flex rounded overflow-hidden border">
-              <button onClick={() => setMode('per100g')} className={`px-3 py-1 ${mode==='per100g' ? 'bg-emerald-600 text-white' : 'hover:bg-emerald-500/10'}`}>per 100g</button>
-              <button onClick={() => setMode('perServing')} className={`px-3 py-1 ${mode==='perServing' ? 'bg-emerald-600 text-white' : 'hover:bg-emerald-500/10'}`}>per serving</button>
+            <div className="flex rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
+              <button onClick={() => setMode('per100g')} className={`px-3 py-1.5 text-sm transition-all ${mode==='per100g' ? 'bg-emerald-600 text-white' : 'hover:bg-slate-100 dark:hover:bg-slate-700'}`}>per 100g</button>
+              <button onClick={() => setMode('perServing')} className={`px-3 py-1.5 text-sm transition-all ${mode==='perServing' ? 'bg-emerald-600 text-white' : 'hover:bg-slate-100 dark:hover:bg-slate-700'}`}>per serving</button>
             </div>
-            <button onClick={clearAll} disabled={compare.length===0} className="px-3 py-1 rounded border hover:bg-rose-500/10 disabled:opacity-50">Bersihkan</button>
+            <button onClick={clearAll} disabled={compare.length===0} className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-sm hover:bg-rose-50 dark:hover:bg-rose-500/10 hover:border-rose-300 dark:hover:border-rose-500/30 disabled:opacity-50 transition-all">Bersihkan</button>
           </div>
         </div>
 
@@ -140,7 +140,7 @@ export default function CompareGizi() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="border-b bg-base/60">
+              <thead className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
                 <tr>
                   <th className="text-left p-3 w-48">Nutrisi</th>
                   {headers.map(h => (
@@ -186,9 +186,9 @@ export default function CompareGizi() {
             {state.data.length === 0 ? (
               <p className="text-sm text-muted-foreground">Tidak ada hasil untuk “{query}”.</p>
             ) : (
-              <ul className="divide-y rounded-lg border bg-card/50">
+              <ul className="divide-y divide-slate-200 dark:divide-slate-700 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 backdrop-blur overflow-hidden">
                 {state.data.map(item => (
-                  <li key={item.fdcId} className="p-3 hover:bg-emerald-500/5 transition-colors">
+                  <li key={item.fdcId} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                     <div className="flex items-start gap-3">
                       <div className="flex-1 min-w-0">
                         <div className="font-semibold">
@@ -202,10 +202,10 @@ export default function CompareGizi() {
                           <span>• Karbo/100g: {item.macrosPer100g?.carb ?? item.macros?.carbsG ?? '-'}</span>
                         </div>
                       </div>
-                      <button onClick={() => addToCompare(item)} className="shrink-0 px-3 py-1 rounded border hover:bg-emerald-500/10">
+                      <button onClick={() => addToCompare(item)} className="shrink-0 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-sm hover:bg-emerald-50 dark:hover:bg-emerald-500/10 hover:border-emerald-300 dark:hover:border-emerald-500/30 transition-all">
                         Tambah ke bandingkan
                       </button>
-                      <button onClick={() => addToDaily(item)} className="shrink-0 px-3 py-1 rounded border hover:bg-emerald-500/10">
+                      <button onClick={() => addToDaily(item)} className="shrink-0 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-sm hover:bg-emerald-50 dark:hover:bg-emerald-500/10 hover:border-emerald-300 dark:hover:border-emerald-500/30 transition-all">
                         Tambah ke asupan
                       </button>
                     </div>
@@ -216,9 +216,9 @@ export default function CompareGizi() {
 
             {state.pagination && state.pagination.totalPages > 1 && (
               <div className="flex items-center gap-3 justify-center mt-5">
-                <button className="px-3 py-1 border rounded" onClick={() => goPage(page - 1)} disabled={page <= 1}>Prev</button>
-                <span className="text-sm">Hal {page} / {state.pagination.totalPages}</span>
-                <button className="px-3 py-1 border rounded" onClick={() => goPage(page + 1)} disabled={page >= state.pagination.totalPages}>Next</button>
+                <button className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 transition-all" onClick={() => goPage(page - 1)} disabled={page <= 1}>Prev</button>
+                <span className="text-sm text-muted-foreground">Hal {page} / {state.pagination.totalPages}</span>
+                <button className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 transition-all" onClick={() => goPage(page + 1)} disabled={page >= state.pagination.totalPages}>Next</button>
               </div>
             )}
           </>

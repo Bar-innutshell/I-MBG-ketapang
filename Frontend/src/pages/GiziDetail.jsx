@@ -61,7 +61,7 @@ export default function GiziDetail() {
   const d = state.data;
   return (
     <div className="container mx-auto px-4 py-6">
-      <button onClick={() => navigate(-1)} className="mb-4 px-3 py-1 border rounded hover:bg-emerald-500/10">← Kembali</button>
+      <button onClick={() => navigate(-1)} className="mb-4 px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">← Kembali</button>
 
       <div className="mb-4">
         <h1 className="text-2xl font-bold">{d.description}</h1>
@@ -71,50 +71,50 @@ export default function GiziDetail() {
         </div>
       </div>
 
-      <section className="mb-6 grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="p-3 border rounded bg-card/50">
+      <section className="mb-6 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="p-4 rounded-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur border border-slate-200 dark:border-slate-700">
           <div className="text-xs text-muted-foreground">Kalori</div>
-          <div className="text-lg font-semibold">{main?.kcal ?? '-'}</div>
+          <div className="text-xl font-semibold text-emerald-600 dark:text-emerald-400">{main?.kcal ?? '-'}</div>
         </div>
-        <div className="p-3 border rounded bg-card/50">
+        <div className="p-4 rounded-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur border border-slate-200 dark:border-slate-700">
           <div className="text-xs text-muted-foreground">Protein (g)</div>
-          <div className="text-lg font-semibold">{main?.prot ?? '-'}</div>
+          <div className="text-xl font-semibold text-blue-600 dark:text-blue-400">{main?.prot ?? '-'}</div>
         </div>
-        <div className="p-3 border rounded bg-card/50">
+        <div className="p-4 rounded-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur border border-slate-200 dark:border-slate-700">
           <div className="text-xs text-muted-foreground">Lemak (g)</div>
-          <div className="text-lg font-semibold">{main?.fat ?? '-'}</div>
+          <div className="text-xl font-semibold text-amber-600 dark:text-amber-400">{main?.fat ?? '-'}</div>
         </div>
-        <div className="p-3 border rounded bg-card/50">
+        <div className="p-4 rounded-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur border border-slate-200 dark:border-slate-700">
           <div className="text-xs text-muted-foreground">Karbo (g)</div>
-          <div className="text-lg font-semibold">{main?.carb ?? '-'}</div>
+          <div className="text-xl font-semibold text-purple-600 dark:text-purple-400">{main?.carb ?? '-'}</div>
         </div>
       </section>
 
-      <div className="mb-6">
-        <button onClick={addToCompare} className="px-4 py-2 rounded bg-emerald-600 text-white hover:bg-emerald-700">
+      <div className="mb-6 flex flex-wrap gap-3">
+        <button onClick={addToCompare} className="px-5 py-2.5 rounded-xl bg-emerald-600 text-white font-medium hover:bg-emerald-700 shadow-md shadow-emerald-600/20 transition-all">
           Tambahkan 100g ke bandingkan
         </button>
         <button onClick={() => navigate('/compare-gizi?query=' + encodeURIComponent(d.description) + '&page=1')}
-                className="ml-2 px-4 py-2 rounded border hover:bg-emerald-500/10">
+                className="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">
           Buka halaman bandingkan
         </button>
       </div>
 
-      <section className="border rounded-lg bg-card/50 overflow-x-auto">
+      <section className="rounded-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur border border-slate-200 dark:border-slate-700 overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="border-b bg-base/60">
+          <thead className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
             <tr>
-              <th className="text-left p-3">Nutrient</th>
-              <th className="text-right p-3">Nilai</th>
-              <th className="text-left p-3">Satuan</th>
+              <th className="text-left p-4 font-semibold">Nutrient</th>
+              <th className="text-right p-4 font-semibold">Nilai</th>
+              <th className="text-left p-4 font-semibold">Satuan</th>
             </tr>
           </thead>
           <tbody>
             {(d.foodNutrients || []).map((n, idx) => (
-              <tr key={idx} className="border-b">
-                <td className="p-3">{n.nutrientName || n.nutrient?.name}</td>
-                <td className="p-3 text-right">{n.value ?? n.amount ?? '-'}</td>
-                <td className="p-3">{n.unitName || n.nutrient?.unitName || '-'}</td>
+              <tr key={idx} className="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                <td className="p-4">{n.nutrientName || n.nutrient?.name}</td>
+                <td className="p-4 text-right font-medium">{n.value ?? n.amount ?? '-'}</td>
+                <td className="p-4 text-muted-foreground">{n.unitName || n.nutrient?.unitName || '-'}</td>
               </tr>
             ))}
           </tbody>
