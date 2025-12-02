@@ -1,14 +1,45 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useDebounce from '../hooks/useDebounce'
 import { searchGizi } from '../hooks/api'
-import { Flame, Apple, BookOpen, GraduationCap, Link as LinkIcon, TrendingUp } from 'lucide-react'
+import { Flame, Apple, BookOpen, GraduationCap, Link as LinkIcon, TrendingUp, RefreshCw } from 'lucide-react'
 
 export default function Homepage() {
   const [term, setTerm] = useState('')
   const navigate = useNavigate()
   const debounced = useDebounce(term, 300)
   const [sug, setSug] = useState({ open: false, loading: false, items: [] })
+  
+  // State untuk Quick Picks dari TheMealDB
+  const [quickPicks, setQuickPicks] = useState([])
+  const [quickPicksLoading, setQuickPicksLoading] = useState(true)
+  const hasFetchedRef = useRef(false)
+
+  // Fetch random meals dari TheMealDB
+  const fetchRandomMeals = async () => {
+    setQuickPicksLoading(true)
+    try {
+      // TheMealDB random endpoint hanya return 1 meal, jadi kita fetch 4x
+      const promises = Array(4).fill(null).map(() => 
+        fetch('https://www.themealdb.com/api/json/v1/1/random.php').then(r => r.json())
+      )
+      const results = await Promise.all(promises)
+      const meals = results.map(r => r.meals?.[0]).filter(Boolean)
+      setQuickPicks(meals)
+    } catch (err) {
+      console.error('Failed to fetch random meals:', err)
+      setQuickPicks([])
+    } finally {
+      setQuickPicksLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    // Prevent double fetch in StrictMode
+    if (hasFetchedRef.current) return
+    hasFetchedRef.current = true
+    fetchRandomMeals()
+  }, [])
 
   useEffect(() => {
     const q = debounced.trim()
@@ -162,34 +193,74 @@ export default function Homepage() {
         </div>
       </section>
 
-      {/* Quick Picks (static mock cards) */}
+      {/* Quick Picks (dari TheMealDB API) */}
       <section className="mx-auto max-w-6xl px-4">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Quick Picks</h3>
-          <span className="text-xs text-emerald-600 dark:text-emerald-400 inline-flex items-center gap-1">
-            <TrendingUp size={14}/> Trending
-          </span>
+          <button 
+            onClick={fetchRandomMeals}
+            disabled={quickPicksLoading}
+            className="text-xs text-emerald-600 dark:text-emerald-400 inline-flex items-center gap-1 hover:underline disabled:opacity-50"
+          >
+            <RefreshCw size={14} className={quickPicksLoading ? 'animate-spin' : ''}/> 
+            {quickPicksLoading ? 'Loading...' : 'Refresh'}
+          </button>
         </div>
         <div className="grid md:grid-cols-4 gap-4">
-          {["Nasi Putih","Ayam Bakar","Indomie Goreng","Tahu Putih"].map((name, idx)=> (
-            <div
-              key={name}
-              className="rounded-2xl overflow-hidden border border-black/10 dark:border-white/10 bg-white/95 dark:bg-slate-900/80"
-            >
-              <div className="h-36 bg-slate-200 dark:bg-slate-800" />
-              <div className="p-4">
-                <div className="font-semibold text-slate-900 dark:text-white">{name}</div>
-                <div className="text-xs text-slate-700 dark:text-slate-300">
-                  {idx%2===0? '100g • 165 kkal':'80g • 344 kkal'}
-                </div>
-                <div className="mt-2 flex gap-2 text-[10px]">
-                  <span className="px-2 py-0.5 rounded bg-emerald-300/90 text-gray-900 dark:bg-emerald-500/20 dark:text-emerald-200 font-medium">P: 7g</span>
-                  <span className="px-2 py-0.5 rounded bg-amber-300/90 text-gray-900 dark:bg-amber-500/20 dark:text-amber-200 font-medium">L: 4g</span>
-                  <span className="px-2 py-0.5 rounded bg-sky-300/90 text-gray-900 dark:bg-sky-500/20 dark:text-sky-200 font-medium">K: 49g</span>
+          {quickPicksLoading ? (
+            // Skeleton loading
+            Array(4).fill(null).map((_, idx) => (
+              <div
+                key={idx}
+                className="rounded-2xl overflow-hidden border border-black/10 dark:border-white/10 bg-white/95 dark:bg-slate-900/80 animate-pulse"
+              >
+                <div className="h-36 bg-slate-200 dark:bg-slate-700" />
+                <div className="p-4 space-y-2">
+                  <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4" />
+                  <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-1/2" />
                 </div>
               </div>
+            ))
+          ) : quickPicks.length > 0 ? (
+            quickPicks.map((meal) => (
+              <div
+                key={meal.idMeal}
+                className="rounded-2xl overflow-hidden border border-black/10 dark:border-white/10 bg-white/95 dark:bg-slate-900/80 hover:shadow-lg transition-shadow cursor-pointer group"
+                onClick={() => navigate(`/meal/${meal.idMeal}`)}
+              >
+                <div className="h-36 bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                  <img 
+                    src={meal.strMealThumb} 
+                    alt={meal.strMeal}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <div className="p-4">
+                  <div className="font-semibold text-slate-900 dark:text-white line-clamp-1" title={meal.strMeal}>
+                    {meal.strMeal}
+                  </div>
+                  <div className="text-xs text-slate-700 dark:text-slate-300 mt-1">
+                    {meal.strCategory} • {meal.strArea}
+                  </div>
+                  <div className="mt-2 flex gap-2 text-[10px] flex-wrap">
+                    <span className="px-2 py-0.5 rounded bg-emerald-300/90 text-gray-900 dark:bg-emerald-500/20 dark:text-emerald-200 font-medium">
+                      {meal.strCategory}
+                    </span>
+                    {meal.strTags && meal.strTags.split(',').slice(0, 2).map(tag => (
+                      <span key={tag} className="px-2 py-0.5 rounded bg-sky-300/90 text-gray-900 dark:bg-sky-500/20 dark:text-sky-200 font-medium">
+                        {tag.trim()}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            // Fallback jika gagal load
+            <div className="col-span-4 text-center py-8 text-slate-500">
+              Gagal memuat data. <button onClick={fetchRandomMeals} className="text-emerald-600 underline">Coba lagi</button>
             </div>
-          ))}
+          )}
         </div>
       </section>
 

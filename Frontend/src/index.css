@@ -3,10 +3,10 @@
 /* ============ THEME TOKENS (Light/Dark) ============ */
 :root {
   color-scheme: light;
-  --base: 255 255 255;            /* white */
+  --base: 250 250 250;            /* gray-50 */
   --foreground: 15 23 42;         /* slate-900 */
-  --muted: 248 250 252;           /* slate-50 */
-  --muted-foreground: 71 85 105;  /* slate-600 */
+  --muted: 241 245 249;           /* slate-100 */
+  --muted-foreground: 100 116 139;/* slate-500 */
   --border: 226 232 240;          /* slate-200 */
   --primary: 16 185 129;          /* emerald-500 */
   --primary-foreground: 255 255 255;
@@ -15,77 +15,185 @@
   --input: 255 255 255;
   --input-foreground: 15 23 42;
   --selection: 110 231 183;       /* emerald-300 */
+  --surface: 255 255 255;
+  --surface-hover: 241 245 249;
 }
 .dark {
   color-scheme: dark;
-  --base: 2 6 23;                 /* slate-950 */
-  --foreground: 241 245 249;      /* slate-100 */
-  --muted: 15 23 42;              /* slate-900 */
+  --base: 15 23 42;               /* slate-900 */
+  --foreground: 248 250 252;      /* slate-50 */
+  --muted: 30 41 59;              /* slate-800 */
   --muted-foreground: 148 163 184;/* slate-400 */
-  --border: 30 41 59;             /* slate-800 */
+  --border: 51 65 85;             /* slate-700 */
   --primary: 52 211 153;          /* emerald-400 */
-  --primary-foreground: 2 6 23;
-  --card: 3 7 18;
-  --card-foreground: 241 245 249;
-  --input: 3 7 18;
-  --input-foreground: 241 245 249;
+  --primary-foreground: 15 23 42;
+  --card: 30 41 59;               /* slate-800 */
+  --card-foreground: 248 250 252;
+  --input: 30 41 59;
+  --input-foreground: 248 250 252;
   --selection: 52 211 153;        /* emerald-400 */
+  --surface: 30 41 59;
+  --surface-hover: 51 65 85;
 }
 
 /* ========= Base & semantic ========= */
-.bg-base{ background-color: rgb(var(--base)); }
-.text-foreground{ color: rgb(var(--foreground)); }
-.text-muted-foreground{ color: rgb(var(--muted-foreground)); }
-.bg-muted{ background-color: rgb(var(--muted)); }
-.border-default{ border-color: rgb(var(--border)); }
-.bg-card{ background-color: rgb(var(--card)); }
-.text-card-foreground{ color: rgb(var(--card-foreground)); }
-.bg-primary{ background-color: rgb(var(--primary)); }
-.text-primary{ color: rgb(var(--primary)); }
-.text-primary-foreground{ color: rgb(var(--primary-foreground)); }
+.bg-base { background-color: rgb(var(--base)); }
+.bg-surface { background-color: rgb(var(--surface)); }
+.text-foreground { color: rgb(var(--foreground)); }
+.text-muted-foreground { color: rgb(var(--muted-foreground)); }
+.bg-muted { background-color: rgb(var(--muted)); }
+.border-default { border-color: rgb(var(--border)); }
+.bg-card { background-color: rgb(var(--card)); }
+.text-card-foreground { color: rgb(var(--card-foreground)); }
+.bg-primary { background-color: rgb(var(--primary)); }
+.text-primary { color: rgb(var(--primary)); }
+.text-primary-foreground { color: rgb(var(--primary-foreground)); }
 
-@layer base{
-  html,body,#root{ @apply h-full; }
-  body{ color: rgb(var(--foreground)); background-color: rgb(var(--base)); }
-  ::selection{ background-color: rgba(var(--selection), .4); }
-  h1,h2,h3,h4{ color: rgb(var(--foreground)); }
-  small,.text-muted,.muted,.secondary{ color: rgb(var(--muted-foreground)); }
+@layer base {
+  html, body, #root { @apply h-full; }
+  body { 
+    color: rgb(var(--foreground)); 
+    background-color: rgb(var(--base)); 
+    @apply transition-colors duration-200;
+  }
+  ::selection { background-color: rgba(var(--selection), .4); }
+  h1, h2, h3, h4 { color: rgb(var(--foreground)); }
+  small, .text-muted, .muted, .secondary { color: rgb(var(--muted-foreground)); }
 }
 
 /* ========= App background (tema hijau) ========= */
-.app-background{
+.app-background {
+  background-color: rgb(var(--base));
   background-image:
-    radial-gradient(1200px 600px at 50% -200px, rgba(16,185,129,.10), transparent),
-    radial-gradient(800px 400px at 100% 0%, rgba(16,185,129,.05), transparent),
-    radial-gradient(800px 400px at 0% 0%, rgba(16,185,129,.05), transparent);
+    radial-gradient(ellipse 1200px 600px at 50% -100px, rgba(16,185,129,.08), transparent),
+    radial-gradient(ellipse 600px 300px at 100% 0%, rgba(16,185,129,.05), transparent),
+    radial-gradient(ellipse 600px 300px at 0% 0%, rgba(16,185,129,.05), transparent);
 }
-.dark .app-background{
+.dark .app-background {
   background-image:
-    radial-gradient(1200px 600px at 50% -200px, rgba(52,211,153,.12), transparent),
-    radial-gradient(800px 400px at 100% 0%, rgba(52,211,153,.06), transparent),
-    radial-gradient(800px 400px at 0% 0%, rgba(52,211,153,.06), transparent);
+    radial-gradient(ellipse 1200px 600px at 50% -100px, rgba(52,211,153,.12), transparent),
+    radial-gradient(ellipse 600px 300px at 100% 0%, rgba(52,211,153,.06), transparent),
+    radial-gradient(ellipse 600px 300px at 0% 0%, rgba(52,211,153,.06), transparent);
 }
 
-/* ========= NEW: Helpers untuk teks di permukaan gelap/translucent ========= */
-/* Gunakan class .on-dark pada container yang background-nya gelap (mis. slate/emerald gelap) */
-.on-dark { color: #fff; }
-.on-dark .muted,
-.on-dark .text-muted,
-.on-dark small { color: rgba(255,255,255,.85); }
-
-/* Overlay gelap di bawah gambar/hero supaya label/meta tetap terbaca */
-.overlay-bottom {
-  background: linear-gradient(to top, rgba(2,6,23,.85), rgba(2,6,23,.55), transparent);
+/* ========= Card Styles ========= */
+.card-base {
+  @apply rounded-2xl border transition-all duration-200;
+  background-color: rgb(var(--card));
+  border-color: rgb(var(--border));
+}
+.card-base:hover {
+  @apply shadow-lg;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+.dark .card-base:hover {
+  border-color: rgba(52, 211, 153, 0.3);
 }
 
-/* Subtitle (lead text) yang sebelumnya terlalu abu: naikkan kontras di light mode */
-.lead-strong { color: rgb(51 65 85); } /* slate-700 */
-.dark .lead-strong { color: rgb(203 213 225); } /* slate-300 */
+/* ========= Input Styles ========= */
+.input-base {
+  @apply rounded-xl border px-4 py-2.5 outline-none transition-all duration-200;
+  background-color: rgb(var(--input));
+  border-color: rgb(var(--border));
+  color: rgb(var(--input-foreground));
+}
+.input-base:focus {
+  @apply ring-2 ring-emerald-500/50;
+  border-color: rgb(var(--primary));
+}
+.input-base::placeholder {
+  color: rgb(var(--muted-foreground));
+}
 
-/* Kartu fitur hijau-translucent: paksa teks lebih gelap di light mode */
-.feature-strong { color: rgb(30 41 59); } /* slate-800 */
-.dark .feature-strong { color: rgb(226 232 240); } /* slate-200 */
+/* ========= Button Styles ========= */
+.btn-primary {
+  @apply inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200;
+  @apply bg-emerald-600 text-white hover:bg-emerald-700 active:bg-emerald-800;
+  @apply shadow-md shadow-emerald-600/20;
+}
+.btn-secondary {
+  @apply inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200;
+  background-color: rgb(var(--muted));
+  color: rgb(var(--foreground));
+  @apply hover:opacity-80;
+}
+.btn-ghost {
+  @apply inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200;
+  @apply border;
+  border-color: rgb(var(--border));
+  color: rgb(var(--foreground));
+}
+.btn-ghost:hover {
+  background-color: rgb(var(--muted));
+}
 
-/* Badge mini dalam card makanan */
-.nutri-badge { color:#111827; } /* gray-900 di light mode */
-.dark .nutri-badge { color:#F9FAFB; } /* gray-50 di dark mode */
+/* ========= Badge Styles ========= */
+.badge {
+  @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium;
+}
+.badge-emerald {
+  @apply bg-emerald-100 text-emerald-700;
+}
+.dark .badge-emerald {
+  @apply bg-emerald-500/20 text-emerald-400;
+}
+.badge-blue {
+  @apply bg-blue-100 text-blue-700;
+}
+.dark .badge-blue {
+  @apply bg-blue-500/20 text-blue-400;
+}
+.badge-amber {
+  @apply bg-amber-100 text-amber-700;
+}
+.dark .badge-amber {
+  @apply bg-amber-500/20 text-amber-400;
+}
+
+/* ========= Skeleton Loading ========= */
+.skeleton {
+  @apply animate-pulse rounded;
+  background-color: rgb(var(--muted));
+}
+
+/* ========= Section Card ========= */
+.section-card {
+  @apply rounded-2xl border overflow-hidden;
+  background-color: rgb(var(--card));
+  border-color: rgb(var(--border));
+}
+.section-header {
+  @apply px-5 py-4 border-b font-semibold;
+  border-color: rgb(var(--border));
+  background-color: rgb(var(--muted));
+}
+
+/* ========= Legacy support ========= */
+.lead-strong { color: rgb(51 65 85); }
+.dark .lead-strong { color: rgb(203 213 225); }
+.feature-strong { color: rgb(30 41 59); }
+.dark .feature-strong { color: rgb(226 232 240); }
+.nutri-badge { color: #111827; }
+.dark .nutri-badge { color: #F9FAFB; }
+
+/* ========= Smooth transitions ========= */
+* {
+  transition-property: background-color, border-color, color, fill, stroke, box-shadow;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+img, video, iframe, canvas, svg path {
+  transition-property: none;
+}
+/* Opt-out class for instant changes */
+.no-transition, .no-transition * {
+  transition-property: none !important;
+}
+
+/* ========= Additional utilities ========= */
+.glass {
+  @apply bg-white/80 dark:bg-slate-800/80 backdrop-blur border border-slate-200 dark:border-slate-700;
+}
+.glass-hover:hover {
+  @apply shadow-lg border-emerald-300 dark:border-emerald-600/50;
+}

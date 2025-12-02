@@ -7,10 +7,22 @@ const path = require('path');
 //// Controller untuk artikel
 exports.buatArtikel= async (req, res) => {
     try{
-                const artikelBaru = new Artikel({
+        // Support untuk gambar file upload atau URL eksternal (Imgur)
+        let gambarValue = null;
+        if (req.file) {
+            gambarValue = req.file.filename;
+        } else if (req.body.gambarUrl && req.body.gambarUrl.trim()) {
+            // Validasi URL untuk keamanan (hanya izinkan http/https)
+            const url = req.body.gambarUrl.trim();
+            if (url.startsWith('http://') || url.startsWith('https://')) {
+                gambarValue = url;
+            }
+        }
+
+        const artikelBaru = new Artikel({
             judul: req.body.judul,
             isi:req.body.isi,
-            gambar:req.file ? req.file.filename : null
+            gambar: gambarValue
         });
 
         const artikel = await artikelBaru.save();
@@ -47,17 +59,37 @@ exports.updateArtikel = async (req, res) =>{
     try{
         const {id} = req.params;
         const updateData= {...req.body};
+        
+        // Support untuk gambar file upload atau URL eksternal (Imgur)
         if(req.file){
             updateData.gambar = req.file.filename;
 
             const artikelLama = await Artikel.findById(id);
-            if(artikelLama && artikelLama.gambar){
+            // Hanya hapus file lama jika bukan URL eksternal
+            if(artikelLama && artikelLama.gambar && !artikelLama.gambar.startsWith('http')){
                 const pathGambarLama = path.join(__dirname,'../uploads', artikelLama.gambar);
                 fs.unlink(pathGambarLama, (err)=>{
                     if(err) console.error("Gagal hapus gambar lama", err);
                 });
             }
+        } else if (req.body.gambarUrl && req.body.gambarUrl.trim()) {
+            // Gunakan URL eksternal (Imgur)
+            const url = req.body.gambarUrl.trim();
+            if (url.startsWith('http://') || url.startsWith('https://')) {
+                // Hapus file lama jika ada dan bukan URL
+                const artikelLama = await Artikel.findById(id);
+                if(artikelLama && artikelLama.gambar && !artikelLama.gambar.startsWith('http')){
+                    const pathGambarLama = path.join(__dirname,'../uploads', artikelLama.gambar);
+                    fs.unlink(pathGambarLama, (err)=>{
+                        if(err) console.error("Gagal hapus gambar lama", err);
+                    });
+                }
+                updateData.gambar = url;
+            }
         }
+        
+        // Hapus gambarUrl dari updateData karena bukan field di schema
+        delete updateData.gambarUrl;
 
         const artikelTerupdate = await Artikel.findByIdAndUpdate(
             id,

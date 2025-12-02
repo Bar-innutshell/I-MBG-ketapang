@@ -13,6 +13,7 @@ import GiziDetail from './pages/GiziDetail.jsx';
 import ArtikelList from "./pages/ArtikelList.jsx";
 import AdminTambahArtikel from "./pages/AdminTambahArtikel.jsx";
 import ArtikelDetail from "./pages/ArtikelDetail.jsx";
+import MealDetail from "./pages/MealDetail.jsx";
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
           <Route path="/artikel" element={<ArtikelList />} />
           <Route path="/artikel/:id" element={<ArtikelDetail />} /> 
           <Route path="/resep" element={<Resep />} />
+          <Route path="/meal/:id" element={<MealDetail />} />
           <Route path="/compare-gizi" element={<CompareGizi />} />
           <Route path="/edukasi" element={<Edukasi />} />
           <Route path="/asupan-harian" element={<AsupanHarian />} />
